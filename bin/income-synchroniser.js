@@ -11,7 +11,7 @@ const run = async function ({ month }) {
 }
 
 if (!process.env.LAMBDA_TASK_ROOT) {
-  run(process.env.MONTH).then((out) => { console.log('parsedFiles', out) })
+  run({month: process.env.MONTH}).then((out) => { console.log('parsedFiles', out) })
 }
 
 module.exports = run
