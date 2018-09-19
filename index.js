@@ -23,10 +23,10 @@ exports.incomeSynchroniser = async (event, context) => {
 
   const response = {
     statusCode: 200,
-    body: JSON.stringifpy({
+    body: {
       income: income,
       month: event.params.querystring.month
-    })
+    }
   }
 
   return response
