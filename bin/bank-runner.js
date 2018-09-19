@@ -38,4 +38,8 @@ const run = async function() {
   }))
 }
 
+if (!process.env.LAMBDA_TASK_ROOT) {
+  run().then(files => {console.log('parsedFiles', files)})
+}
+
 module.exports = run
