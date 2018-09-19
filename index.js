@@ -23,7 +23,7 @@ exports.incomeSynchroniser = async (event, context) => {
     statusCode: 200,
     body: JSON.stringify({
       income: income,
-      event: event.queryStringParameters.month,
+      event: event,
       context: context
     })
   }
