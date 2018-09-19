@@ -36,4 +36,4 @@ const run = async function() {
   }))
 }
 
-run()
+module.exports = run

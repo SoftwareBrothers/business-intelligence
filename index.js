@@ -1,40 +1,52 @@
-const Builder = require('./src/builder')
-const TransactionsParser = require('./src/transactions-parser')
-const BankSheet = require('./src/bank-sheet')
+// const Builder = require('./src/builder')
+// const TransactionsParser = require('./src/transactions-parser')
+// const BankSheet = require('./src/bank-sheet')
 
-const run = async function() {
-  // let builder = new Builder({month: '2018-06'})
-  // await builder.init()
+// const run = async function() {
+//   // let builder = new Builder({month: '2018-06'})
+//   // await builder.init()
 
-  // await builder.updateMembersColumn()
-  // await builder.updatePlannerHoursColumns()
-  let bankSheet = new BankSheet()
-  await bankSheet.init()
-  let mappings = await bankSheet.loadMappings()
+//   // await builder.updateMembersColumn()
+//   // await builder.updatePlannerHoursColumns()
+//   let bankSheet = new BankSheet()
+//   await bankSheet.init()
+//   let mappings = await bankSheet.loadMappings()
 
 
-  let parser = new TransactionsParser({mappings})
-  await parser.init()
+//   let parser = new TransactionsParser({mappings})
+//   await parser.init()
 
-  // filename
+//   // filename
 
-  let transactions = await parser.parse()
-  let month = transactions[transactions.length-1].accountingDate.format('MM-YYYY')
-  transactions = await bankSheet.storeTransactions({transactions, sheet: month})
+//   let transactions = await parser.parse()
+//   let month = transactions[transactions.length-1].accountingDate.format('MM-YYYY')
+//   transactions = await bankSheet.storeTransactions({transactions, sheet: month})
 
-  await bankSheet.storeFile({
-    fileName: 'sasda.csv',
-    fileId: '1jXnqp_MtNOnznYEpdDnTz-FSoqT9HnEu',
-    month: month
-  })
+//   await bankSheet.storeFile({
+//     fileName: 'sasda.csv',
+//     fileId: '1jXnqp_MtNOnznYEpdDnTz-FSoqT9HnEu',
+//     month: month
+//   })
 
-  // projects = Object.keys(projects)
-  // await sheet.update({
-  //   // 2018-09!A1:A30
-  //   range: `Projects!A${offset}:B${projects.length + offset}`,
-  //   values: projects.map(p => [p])
-  // })
+//   // projects = Object.keys(projects)
+//   // await sheet.update({
+//   //   // 2018-09!A1:A30
+//   //   range: `Projects!A${offset}:B${projects.length + offset}`,
+//   //   values: projects.map(p => [p])
+//   // })
 
+// }
+
+// run()
+
+exports.bankRunner = async (event) => {
+    let bankRunner = require('./bin/bank-runner')
+    await bankRunner()
+
+    const response = {
+        statusCode: 200,
+        body: JSON.stringify('Successfully updated!')
+    }
+
+    return response
 }
-
-run()
