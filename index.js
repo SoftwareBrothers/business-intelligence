@@ -18,14 +18,14 @@ exports.bankRunner = async (event) => {
 
 exports.incomeSynchroniser = async (event, context) => {
   const income = await incomeSynchroniser({
-    month: '2018-09'
+    month: event.params.querystring.month
   })
 
   const response = {
     statusCode: 200,
-    body: JSON.stringify({
+    body: JSON.stringifpy({
       income: income,
-      month: event
+      month: event.params.querystring.month
     })
   }
 
