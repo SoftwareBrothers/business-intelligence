@@ -12,14 +12,10 @@
     "axios": "^0.18.0",
     "csv": "^3.1.0",
     "currency.js": "^1.1.4",
-    "detect-character-encoding": "^0.6.0",
     "dotenv": "^6.0.0",
-    "encoding": "^0.1.12",
     "googleapis": "^27.0.0",
-    "iconv": "^2.3.0",
     "jira-connector": "^2.8.0",
-    "moment": "^2.22.2",
-    "windows-1250": "^1.0.0"
+    "moment": "^2.22.2"
   },
   "devDependencies": {
     "chai": "^4.1.2",
