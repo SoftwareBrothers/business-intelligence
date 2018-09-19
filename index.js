@@ -1,3 +1,5 @@
+const bankRunner = require('./bin/bank-runner')
+
 // const Builder = require('./src/builder')
 // const TransactionsParser = require('./src/transactions-parser')
 // const BankSheet = require('./src/bank-sheet')
@@ -40,13 +42,13 @@
 // run()
 
 exports.bankRunner = async (event) => {
-    let bankRunner = require('./bin/bank-runner')
-    await bankRunner()
+  process.env['PATH'] = process.env['PATH'] + ':' + process.env['LAMBDA_TASK_ROOT'];
+  await bankRunner()
 
-    const response = {
-        statusCode: 200,
-        body: JSON.stringify('Successfully updated!')
-    }
+  const response = {
+    statusCode: 200,
+    body: JSON.stringify('Successfully updated!')
+  }
 
-    return response
+  return response
 }
