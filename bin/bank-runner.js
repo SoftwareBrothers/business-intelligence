@@ -38,4 +38,4 @@ const run = async function() {
   }))
 }
 
-module.exports = run()
+module.exports = run

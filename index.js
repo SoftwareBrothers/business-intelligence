@@ -1,5 +1,7 @@
 process.env['PATH'] = process.env['PATH'] + ':' + process.env['LAMBDA_TASK_ROOT']
 
+const bankRunner = require('./bin/bank-runner')
+
 // const Builder = require('./src/builder')
 // const TransactionsParser = require('./src/transactions-parser')
 // const BankSheet = require('./src/bank-sheet')
@@ -42,7 +44,7 @@ process.env['PATH'] = process.env['PATH'] + ':' + process.env['LAMBDA_TASK_ROOT'
 // run()
 
 exports.bankRunner = async (event) => {
-  const files = await require('./bin/bank-runner')
+  const files = await bankRunner()
 
   const response = {
     statusCode: 200,
