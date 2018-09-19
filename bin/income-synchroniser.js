@@ -1,7 +1,6 @@
 require('dotenv').config()
 
 const Builder = require('../src/builder')
-const BankSheet = require('../src/bank-sheet')
 
 const run = async function ({ month }) {
   const builder = new Builder({ month })

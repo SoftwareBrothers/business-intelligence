@@ -8,17 +8,18 @@
 
 const { google } = require('googleapis')
 
-module.exports = () => {
+module.exports = function () {
   return new Promise((resolve) => {
     google.auth.getApplicationDefault((error, authClient) => {
+      let auth = authClient
       if (authClient.createScopedRequired && authClient.createScopedRequired()) {
-        authClient.createScoped([
+        auth = authClient.createScoped([
           'https://www.googleapis.com/auth/spreadsheets',
           'https://www.googleapis.com/auth/spreadsheets.readonly',
           'https://www.googleapis.com/auth/drive',
         ])
       }
-      resolve(authClient)
+      resolve(auth)
     })
   })
 }
