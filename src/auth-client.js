@@ -5,21 +5,20 @@
  * - GOOGLE_APPLICATION_CREDENTIALS
  */
 
-'use strict';
 
-const {google} = require('googleapis');
+const { google } = require('googleapis')
 
-module.exports = function() {
-  return new Promise((resolve, reject) => {
-    let authClient = google.auth.getApplicationDefault(function(error, authClient) {
+module.exports = () => {
+  return new Promise((resolve) => {
+    google.auth.getApplicationDefault((error, authClient) => {
       if (authClient.createScopedRequired && authClient.createScopedRequired()) {
-        authClient = authClient.createScoped([
+        authClient.createScoped([
           'https://www.googleapis.com/auth/spreadsheets',
           'https://www.googleapis.com/auth/spreadsheets.readonly',
           'https://www.googleapis.com/auth/drive',
-        ]);
+        ])
       }
       resolve(authClient)
-    });
+    })
   })
-};
+}

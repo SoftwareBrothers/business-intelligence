@@ -4,34 +4,34 @@ const TransactionsParser = require('../src/transactions-parser')
 const TransactionsFolder = require('../src/transactions-folder')
 const BankSheet = require('../src/bank-sheet')
 
-const run = async function() {
-  let bankSheet = new BankSheet({bankSheetId: process.env.BANK_SHEET_ID})
+const run = async function () {
+  const bankSheet = new BankSheet({ bankSheetId: process.env.BANK_SHEET_ID })
   await bankSheet.init()
-  let mappings = await bankSheet.loadMappings()
-  let parsedFiles = await bankSheet.loadFiles()
+  const mappings = await bankSheet.loadMappings()
+  const parsedFiles = await bankSheet.loadFiles()
 
-  let transactionsFolder = new TransactionsFolder({
+  const transactionsFolder = new TransactionsFolder({
     folderId: process.env.FOLDER_ID,
-    parsedFiles
+    parsedFiles,
   })
 
   await transactionsFolder.init()
-  let files = await transactionsFolder.filesToImport()
+  const files = await transactionsFolder.filesToImport()
 
   return await Promise.all(files.map(async (file) => {
-    let parser = new TransactionsParser({
+    const parser = new TransactionsParser({
       mappings,
-      fileId: file.id
+      fileId: file.id,
     })
     await parser.init()
 
     let transactions = await parser.parse()
-    let month = transactions[transactions.length-1].accountingDate.format('MM-YYYY')
-    transactions = await bankSheet.storeTransactions({transactions, sheet: month})
-    let fileData = {
+    const month = transactions[transactions.length - 1].accountingDate.format('MM-YYYY')
+    transactions = await bankSheet.storeTransactions({ transactions, sheet: month })
+    const fileData = {
       fileName: file.name,
       fileId: file.id,
-      month: month
+      month,
     }
     await bankSheet.storeFile(fileData)
     return fileData
@@ -39,7 +39,7 @@ const run = async function() {
 }
 
 if (!process.env.LAMBDA_TASK_ROOT) {
-  run().then(files => {console.log('parsedFiles', files)})
+  run().then((files) => { console.log('parsedFiles', files) })
 }
 
 module.exports = run
