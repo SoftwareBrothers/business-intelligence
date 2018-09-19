@@ -2,7 +2,7 @@ require('dotenv').config()
 
 const TransactionsParser = require('../src/transactions-parser')
 const TransactionsFolder = require('../src/transactions-folder')
-// const BankSheet = require('../src/bank-sheet')
+const BankSheet = require('../src/bank-sheet')
 
 const run = async function() {
   // let bankSheet = new BankSheet({bankSheetId: process.env.BANK_SHEET_ID})

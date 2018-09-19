@@ -4,7 +4,7 @@ const CATEGORY_COLUMN = 'B'
 const CASHFLOW_SHEET = 'Cashflow'
 const FILES_SHEET = 'files'
 
-const Sheets = require('./sheets-client.js')
+// const Sheets = require('./sheets-client.js')
 
 class BankSheet {
   constructor({bankSheetId} = {}) {
