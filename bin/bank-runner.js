@@ -18,7 +18,7 @@ const run = async function() {
   await transactionsFolder.init()
   let files = await transactionsFolder.filesToImport()
 
-  await Promise.all(files.map(async (file) => {
+  return await Promise.all(files.map(async (file) => {
     let parser = new TransactionsParser({
       mappings,
       fileId: file.id
@@ -28,12 +28,14 @@ const run = async function() {
     let transactions = await parser.parse()
     let month = transactions[transactions.length-1].accountingDate.format('MM-YYYY')
     transactions = await bankSheet.storeTransactions({transactions, sheet: month})
-    await bankSheet.storeFile({
+    let fileData = {
       fileName: file.name,
       fileId: file.id,
       month: month
-    })
+    }
+    await bankSheet.storeFile(fileData)
+    return fileData
   }))
 }
 
-module.exports = run
+module.exports = run()
