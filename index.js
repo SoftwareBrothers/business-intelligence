@@ -1,3 +1,5 @@
+process.env['PATH'] = process.env['PATH'] + ':' + process.env['LAMBDA_TASK_ROOT']
+
 const bankRunner = require('./bin/bank-runner')
 
 // const Builder = require('./src/builder')
@@ -42,7 +44,6 @@ const bankRunner = require('./bin/bank-runner')
 // run()
 
 exports.bankRunner = async (event) => {
-  process.env['PATH'] = process.env['PATH'] + ':' + process.env['LAMBDA_TASK_ROOT'];
   await bankRunner()
 
   const response = {
