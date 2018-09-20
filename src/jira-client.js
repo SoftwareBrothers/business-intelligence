@@ -8,8 +8,15 @@ class Jira {
     host, user, token, version = 3,
   }) {
     this.version = version
-    this.client = new axios.create({
+    this.baseClient = new axios.create({
       baseURL: `https://${host}.atlassian.net/rest/api/${this.version}`,
+      auth: {
+        username: user,
+        password: token,
+      },
+    })
+    this.agileClient = new axios.create({
+      baseURL: `https://${host}.atlassian.net/rest/agile/1.0`,
       auth: {
         username: user,
         password: token,
@@ -18,14 +25,59 @@ class Jira {
   }
 
   async projects() {
-    const response = await this.client.get('project/search', {
+    const response = await this.baseClient.get('project/search', {
       params: { categoryId: IN_PROGRESS },
     })
     return response.data.values
   }
 
+  async boards({ projectKeyOrId }) {
+    const response = await this.agileClient.get('board', {
+      params: { projectKeyOrId },
+    })
+    return response.data.values
+  }
+
+  async sprints({ boardId }) {
+    const response = await this.agileClient.get(`board/${boardId}/sprint`, {
+      params: { },
+    })
+    return response.data.values
+  }
+
+  async sprintIssues({ boardId, sprintId, startAt = 0 }) {
+    const maxResults = 200
+    const url = `board/${boardId}/sprint/${sprintId}/issue`
+
+    const response = await this.agileClient.get(url, {
+      params: { maxResults, startAt },
+    })
+    const { data } = response
+    let { issues } = data
+    if (data.total > (data.startAt + data.maxResults)) {
+      issues = issues.concat(await this.sprintIssues({
+        boardId,
+        sprintId,
+        startAt: startAt + maxResults,
+      }))
+    }
+    return issues
+  }
+
+  async project({ projectKey }) {
+    const response = await this.baseClient.get(`project/${projectKey}`, {
+      expand: 'issueTypes,lead,description',
+    })
+    return response.data
+  }
+
+  async projectRoles({ projectKey, role }) {
+    const response = await this.baseClient.get(`project/${projectKey}/role/${role}`)
+    return response.data.actors
+  }
+
   async categories() {
-    return await this.client.get('projectCategory')
+    await this.baseClient.get('projectCategory')
   }
 }
 

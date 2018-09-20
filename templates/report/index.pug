@@ -1,0 +1,108 @@
+doctype html
+html
+  head
+    link(href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet")
+    link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+  body
+    nav(class="light-blue lighten-1" role="navigation")
+      div(class="nav-wrapper container")
+        a(id="logo-container" href="#" class="brand-logo") Software Brothers
+    
+    section.section
+      .container
+        .row
+          .col.s12
+            table
+              thead
+                tr
+                  th Raport start date
+                  th Raport end date
+              tbody
+                tr
+                  td= fromDate.format('YYYY-MM-DD')
+                  td= toDate.format('YYYY-MM-DD')
+
+    each project in projects
+      section.section
+        div.container
+          .row
+            .col.s12
+              h4 Project Name: #{project.name}
+          .row
+            div.col.s12
+              h5 Project lead
+              ul.collection
+                li.collection-item.avatar
+                  img.circle(src=project.lead.avatarUrls['32x32'])
+                  span.title= project.lead.displayName
+                  p Project Manager
+              h5 Clients
+              ul.collection
+                each client in project.roles.clients
+                  li.collection-item.avatar
+                    img.circle(src=client.avatarUrl)
+                    span.title= client.displayName
+                    p Client
+              h5 Developers
+              ul.collection
+                each developer in project.roles.developers
+                  li.collection-item.avatar
+                    img.circle(src=developer.avatarUrl)
+                    span.title= developer.displayName
+                    p Developer
+
+          .row
+            .col.s12
+              h5 Planned holidays
+              p TO BE IMPLEMENTED
+          each sprint in project.board.sprints
+            .row
+              nav
+                .nav-wrapper
+                  .col.s12
+                    a.breadcrumb Sprints
+                    a.breadcrumb= sprint.name
+            .row
+              .col.s12
+                p
+                  b Sprint Goal: 
+                  span= sprint.goal
+              .col.s12
+                table
+                  thead
+                    tr
+                      th ISSUE
+                      th Summary
+                      th Estimation
+                      th Assignee
+                  tbody
+                    each issue in sprint.issues
+                      tr
+                        td= issue.key
+                        td
+                          h6= issue.summary
+                          .row
+                            .col.s6= issue.status.name
+                            .col.s6
+                              img.circle(src=issue.issuetype.iconUrl) 
+                              = issue.issuetype.name
+                        td
+                          b Estimated: 
+                          = issue.timetracking.originalEstimate
+                          br
+                          b Remaining: 
+                          = issue.timetracking.remainingEstimate
+                          br
+                          b Time spent: 
+                          = issue.timetracking.timeSpent
+                        td
+                          if issue.assignee
+                            img.circle(src=issue.assignee.avatarUrls['32x32']) 
+                            = issue.assignee.displayName
+
+
+
+
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js")
+

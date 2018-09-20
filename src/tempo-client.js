@@ -27,11 +27,37 @@ class Tempo {
     return response.data.results
   }
 
-  async worklogs({ username, from, to }) {
+  async userWorklogs({ username, from, to, limit = 500, offset = 0 }) {
     const response = await this.client.get(`worklogs/user/${username}`, {
-      params: { from, to },
+      params: {
+        from, to, limit, offset,
+      },
     })
-    return response.data.results
+    let worklogs = response.data.results
+    if (response.data.metadata.next) {
+      worklogs = worklogs.concat(this.userWorklogs({
+        username, from, to, limit,
+        offset: offset + limit,
+      }))
+    }
+    return worklogs
+  }
+
+  async projectWorklogs({ projectKey, from, to, limit = 100, offset = 0 }) {
+    const response = await this.client.get(`worklogs/project/${projectKey}`, {
+      params: {
+        from, to, limit, offset,
+      },
+    })
+
+    let worklogs = response.data.results
+    if (response.data.metadata.next) {
+      worklogs = worklogs.concat(await this.projectWorklogs({
+        projectKey, from, to, limit,
+        offset: offset + limit,
+      }))
+    }
+    return worklogs
   }
 
   async accounts() {

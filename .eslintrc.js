@@ -4,6 +4,6 @@ module.exports = {
         "import"
     ],
     "rules": {
-        'semi': [2, 'never']
+        'semi': [2, 'never'],
     }
 };

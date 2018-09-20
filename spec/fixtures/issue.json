@@ -1,0 +1,273 @@
+{
+  "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
+  "fields": {
+    "aggregateprogress": {
+      "percent": 100,
+      "progress": 20700,
+      "total": 20700
+    },
+    "aggregatetimeestimate": 0,
+    "aggregatetimeoriginalestimate": 7200,
+    "aggregatetimespent": 20700,
+    "assignee": {
+      "accountId": "557058:c016bdb9-539c-4502-9d1a-1547cef2e282",
+      "active": true,
+      "avatarUrls": {
+        "16x16": "https://avatar-cdn.atlassian.com/67029e44f5c088b06c92d29997245541?s=16&d=https%3A%2F%2Fsomecompany.atlassian.net%2Fsecure%2Fuseravatar%3Fsize%3Dxsmall%26avatarId%3D10122%26noRedirect%3Dtrue",
+        "24x24": "https://avatar-cdn.atlassian.com/67029e44f5c088b06c92d29997245541?s=24&d=https%3A%2F%2Fsomecompany.atlassian.net%2Fsecure%2Fuseravatar%3Fsize%3Dsmall%26avatarId%3D10122%26noRedirect%3Dtrue",
+        "32x32": "https://avatar-cdn.atlassian.com/67029e44f5c088b06c92d29997245541?s=32&d=https%3A%2F%2Fsomecompany.atlassian.net%2Fsecure%2Fuseravatar%3Fsize%3Dmedium%26avatarId%3D10122%26noRedirect%3Dtrue",
+        "48x48": "https://avatar-cdn.atlassian.com/67029e44f5c088b06c92d29997245541?s=48&d=https%3A%2F%2Fsomecompany.atlassian.net%2Fsecure%2Fuseravatar%3FavatarId%3D10122%26noRedirect%3Dtrue"
+      },
+      "displayName": "kk user",
+      "emailAddress": "kk@rst-it.com",
+      "key": "kk",
+      "name": "kk",
+      "self": "https://somecompany.atlassian.net/rest/api/2/user?username=kk",
+      "timeZone": "Europe/Berlin"
+    },
+    "attachment": [],
+    "comment": {
+      "comments": [],
+      "maxResults": 0,
+      "startAt": 0,
+      "total": 0
+    },
+    "components": [],
+    "created": "2018-09-17T10:50:00.362+0200",
+    "creator": {
+      "accountId": "59f6ccfcbb92065d2cafad2c",
+      "active": true,
+      "avatarUrls": {
+        "16x16": "https://avatar-cdn.atlassian.com/48a5966d805abe72e5d834a07d1c9f35?s=16&d=https%3A%2F%2Fsomecompany.atlassian.net%2Fsecure%2Fuseravatar%3Fsize%3Dxsmall%26avatarId%3D10122%26noRedirect%3Dtrue",
+        "24x24": "https://avatar-cdn.atlassian.com/48a5966d805abe72e5d834a07d1c9f35?s=24&d=https%3A%2F%2Fsomecompany.atlassian.net%2Fsecure%2Fuseravatar%3Fsize%3Dsmall%26avatarId%3D10122%26noRedirect%3Dtrue",
+        "32x32": "https://avatar-cdn.atlassian.com/48a5966d805abe72e5d834a07d1c9f35?s=32&d=https%3A%2F%2Fsomecompany.atlassian.net%2Fsecure%2Fuseravatar%3Fsize%3Dmedium%26avatarId%3D10122%26noRedirect%3Dtrue",
+        "48x48": "https://avatar-cdn.atlassian.com/48a5966d805abe72e5d834a07d1c9f35?s=48&d=https%3A%2F%2Fsomecompany.atlassian.net%2Fsecure%2Fuseravatar%3FavatarId%3D10122%26noRedirect%3Dtrue"
+      },
+      "displayName": "Mariusz B",
+      "emailAddress": "m.b@rst-it.com",
+      "key": "m.b",
+      "name": "m.b",
+      "self": "https://somecompany.atlassian.net/rest/api/2/user?username=m.b",
+      "timeZone": "Europe/Berlin"
+    },
+    "customfield_10000": null,
+    "customfield_10001": null,
+    "customfield_10002": null,
+    "customfield_10003": null,
+    "customfield_10004": null,
+    "customfield_10007": [
+      "com.atlassian.greenhopper.service.sprint.Sprint@7918163f[id=813,rapidViewId=174,state=ACTIVE,name=FIN Sprint 5,goal=,startDate=2018-09-17T15:03:14.205Z,endDate=2018-10-01T15:03:00.000Z,completeDate=<null>,sequence=803]"
+    ],
+    "customfield_10008": "FIN-84",
+    "customfield_10024": null,
+    "customfield_10300": "2|i0063l:x",
+    "customfield_10400": null,
+    "customfield_10600": null,
+    "customfield_10601": null,
+    "customfield_10800": null,
+    "customfield_11100": {
+      "hasEpicLinkFieldDependency": false,
+      "nonEditableReason": {
+        "message": "To set an epic as the parent, use the epic link instead",
+        "reason": "EPIC_LINK_SHOULD_BE_USED"
+      },
+      "showField": false
+    },
+    "customfield_11200": "{}",
+    "customfield_11300": null,
+    "customfield_11400": null,
+    "customfield_11500": null,
+    "customfield_11605": null,
+    "customfield_11611": [],
+    "customfield_11612": null,
+    "customfield_11613": null,
+    "customfield_11614": null,
+    "customfield_11615": null,
+    "customfield_11616": null,
+    "customfield_11618": null,
+    "customfield_11619": null,
+    "description": "*AC:*\r\n# Add remaining certificated",
+    "duedate": null,
+    "environment": null,
+    "epic": {
+      "color": {
+        "key": "color_10"
+      },
+      "done": false,
+      "id": 52133,
+      "key": "FIN-84",
+      "name": "Project Configuration",
+      "self": "https://somecompany.atlassian.net/rest/agile/1.0/epic/52133",
+      "summary": "Setup, CD/CI, Libraries, Tools etc. "
+    },
+    "fixVersions": [
+      {
+        "archived": false,
+        "description": "",
+        "id": "19752",
+        "name": "Proof of concept",
+        "released": false,
+        "self": "https://somecompany.atlassian.net/rest/api/2/version/19752"
+      }
+    ],
+    "flagged": false,
+    "issuelinks": [],
+    "issuetype": {
+      "avatarId": 11318,
+      "description": "A task that needs to be done.",
+      "iconUrl": "https://somecompany.atlassian.net/secure/viewavatar?size=xsmall&avatarId=11318&avatarType=issuetype",
+      "id": "3",
+      "name": "Task",
+      "self": "https://somecompany.atlassian.net/rest/api/2/issuetype/3",
+      "subtask": false
+    },
+    "labels": [],
+    "lastViewed": null,
+    "priority": {
+      "iconUrl": "https://somecompany.atlassian.net/images/icons/priorities/major.svg",
+      "id": "3",
+      "name": "Major",
+      "self": "https://somecompany.atlassian.net/rest/api/2/priority/3"
+    },
+    "progress": {
+      "percent": 100,
+      "progress": 20700,
+      "total": 20700
+    },
+    "project": {
+      "avatarUrls": {
+        "16x16": "https://somecompany.atlassian.net/secure/projectavatar?size=xsmall&pid=17636&avatarId=15680",
+        "24x24": "https://somecompany.atlassian.net/secure/projectavatar?size=small&pid=17636&avatarId=15680",
+        "32x32": "https://somecompany.atlassian.net/secure/projectavatar?size=medium&pid=17636&avatarId=15680",
+        "48x48": "https://somecompany.atlassian.net/secure/projectavatar?pid=17636&avatarId=15680"
+      },
+      "id": "17636",
+      "key": "FIN",
+      "name": "Finmill",
+      "projectTypeKey": "software",
+      "self": "https://somecompany.atlassian.net/rest/api/2/project/17636"
+    },
+    "reporter": {
+      "accountId": "59f6ccfcbb92065d2cafad2c",
+      "active": true,
+      "avatarUrls": {
+        "16x16": "https://avatar-cdn.atlassian.com/48a5966d805abe72e5d834a07d1c9f35?s=16&d=https%3A%2F%2Fsomecompany.atlassian.net%2Fsecure%2Fuseravatar%3Fsize%3Dxsmall%26avatarId%3D10122%26noRedirect%3Dtrue",
+        "24x24": "https://avatar-cdn.atlassian.com/48a5966d805abe72e5d834a07d1c9f35?s=24&d=https%3A%2F%2Fsomecompany.atlassian.net%2Fsecure%2Fuseravatar%3Fsize%3Dsmall%26avatarId%3D10122%26noRedirect%3Dtrue",
+        "32x32": "https://avatar-cdn.atlassian.com/48a5966d805abe72e5d834a07d1c9f35?s=32&d=https%3A%2F%2Fsomecompany.atlassian.net%2Fsecure%2Fuseravatar%3Fsize%3Dmedium%26avatarId%3D10122%26noRedirect%3Dtrue",
+        "48x48": "https://avatar-cdn.atlassian.com/48a5966d805abe72e5d834a07d1c9f35?s=48&d=https%3A%2F%2Fsomecompany.atlassian.net%2Fsecure%2Fuseravatar%3FavatarId%3D10122%26noRedirect%3Dtrue"
+      },
+      "displayName": "Mariusz B",
+      "emailAddress": "m.b@rst-it.com",
+      "key": "m.b",
+      "name": "m.b",
+      "self": "https://somecompany.atlassian.net/rest/api/2/user?username=m.b",
+      "timeZone": "Europe/Berlin"
+    },
+    "resolution": null,
+    "resolutiondate": null,
+    "security": null,
+    "sprint": {
+      "endDate": "2018-10-01T15:03:00.000Z",
+      "goal": "",
+      "id": 813,
+      "name": "FIN Sprint 5",
+      "originBoardId": 174,
+      "self": "https://somecompany.atlassian.net/rest/agile/1.0/sprint/813",
+      "startDate": "2018-09-17T15:03:14.205Z",
+      "state": "active"
+    },
+    "status": {
+      "description": "This issue is being actively worked on at the moment by the assignee.",
+      "iconUrl": "https://somecompany.atlassian.net/images/icons/statuses/inprogress.png",
+      "id": "3",
+      "name": "In Progress",
+      "self": "https://somecompany.atlassian.net/rest/api/2/status/3",
+      "statusCategory": {
+        "colorName": "yellow",
+        "id": 4,
+        "key": "indeterminate",
+        "name": "In Progress",
+        "self": "https://somecompany.atlassian.net/rest/api/2/statuscategory/4"
+      }
+    },
+    "subtasks": [],
+    "summary": "Setup CI - Finish it!",
+    "timeestimate": 0,
+    "timeoriginalestimate": 7200,
+    "timespent": 20700,
+    "timetracking": {
+      "originalEstimate": "2h",
+      "originalEstimateSeconds": 7200,
+      "remainingEstimate": "0m",
+      "remainingEstimateSeconds": 0,
+      "timeSpent": "5h 45m",
+      "timeSpentSeconds": 20700
+    },
+    "updated": "2018-09-19T10:34:09.351+0200",
+    "versions": [],
+    "votes": {
+      "hasVoted": false,
+      "self": "https://somecompany.atlassian.net/rest/api/2/issue/FIN-225/votes",
+      "votes": 0
+    },
+    "watches": {
+      "isWatching": false,
+      "self": "https://somecompany.atlassian.net/rest/api/2/issue/FIN-225/watchers",
+      "watchCount": 1
+    },
+    "worklog": {
+      "maxResults": 20,
+      "startAt": 0,
+      "total": 1,
+      "worklogs": [
+        {
+          "author": {
+            "accountId": "557058:295406f3-a1fc-4733-b906-dd15d021bd79",
+            "active": true,
+            "avatarUrls": {
+              "16x16": "https://avatar-cdn.atlassian.com/182fc208a1a2e6cc41393ab6c9363d9c?s=16&d=https%3A%2F%2Fsomecompany.atlassian.net%2Fsecure%2Fuseravatar%3Fsize%3Dxsmall%26avatarId%3D10122%26noRedirect%3Dtrue",
+              "24x24": "https://avatar-cdn.atlassian.com/182fc208a1a2e6cc41393ab6c9363d9c?s=24&d=https%3A%2F%2Fsomecompany.atlassian.net%2Fsecure%2Fuseravatar%3Fsize%3Dsmall%26avatarId%3D10122%26noRedirect%3Dtrue",
+              "32x32": "https://avatar-cdn.atlassian.com/182fc208a1a2e6cc41393ab6c9363d9c?s=32&d=https%3A%2F%2Fsomecompany.atlassian.net%2Fsecure%2Fuseravatar%3Fsize%3Dmedium%26avatarId%3D10122%26noRedirect%3Dtrue",
+              "48x48": "https://avatar-cdn.atlassian.com/182fc208a1a2e6cc41393ab6c9363d9c?s=48&d=https%3A%2F%2Fsomecompany.atlassian.net%2Fsecure%2Fuseravatar%3FavatarId%3D10122%26noRedirect%3Dtrue"
+            },
+            "displayName": "Tempo Timesheets",
+            "emailAddress": "is.origo.jira.tempo-plugin@connect.atlassian.com",
+            "key": "addon_is.origo.jira.tempo-plugin",
+            "name": "addon_is.origo.jira.tempo-plugin",
+            "self": "https://somecompany.atlassian.net/rest/api/2/user?username=addon_is.origo.jira.tempo-plugin",
+            "timeZone": "Europe/Berlin"
+          },
+          "comment": "time-tracking",
+          "created": "2018-09-19T10:34:09.330+0200",
+          "id": "88979",
+          "issueId": "53875",
+          "self": "https://somecompany.atlassian.net/rest/api/2/issue/53875/worklog/88979",
+          "started": "2018-09-17T02:00:00.000+0200",
+          "timeSpent": "5h 45m",
+          "timeSpentSeconds": 20700,
+          "updateAuthor": {
+            "accountId": "557058:295406f3-a1fc-4733-b906-dd15d021bd79",
+            "active": true,
+            "avatarUrls": {
+              "16x16": "https://avatar-cdn.atlassian.com/182fc208a1a2e6cc41393ab6c9363d9c?s=16&d=https%3A%2F%2Fsomecompany.atlassian.net%2Fsecure%2Fuseravatar%3Fsize%3Dxsmall%26avatarId%3D10122%26noRedirect%3Dtrue",
+              "24x24": "https://avatar-cdn.atlassian.com/182fc208a1a2e6cc41393ab6c9363d9c?s=24&d=https%3A%2F%2Fsomecompany.atlassian.net%2Fsecure%2Fuseravatar%3Fsize%3Dsmall%26avatarId%3D10122%26noRedirect%3Dtrue",
+              "32x32": "https://avatar-cdn.atlassian.com/182fc208a1a2e6cc41393ab6c9363d9c?s=32&d=https%3A%2F%2Fsomecompany.atlassian.net%2Fsecure%2Fuseravatar%3Fsize%3Dmedium%26avatarId%3D10122%26noRedirect%3Dtrue",
+              "48x48": "https://avatar-cdn.atlassian.com/182fc208a1a2e6cc41393ab6c9363d9c?s=48&d=https%3A%2F%2Fsomecompany.atlassian.net%2Fsecure%2Fuseravatar%3FavatarId%3D10122%26noRedirect%3Dtrue"
+            },
+            "displayName": "Tempo Timesheets",
+            "emailAddress": "is.origo.jira.tempo-plugin@connect.atlassian.com",
+            "key": "addon_is.origo.jira.tempo-plugin",
+            "name": "addon_is.origo.jira.tempo-plugin",
+            "self": "https://somecompany.atlassian.net/rest/api/2/user?username=addon_is.origo.jira.tempo-plugin",
+            "timeZone": "Europe/Berlin"
+          },
+          "updated": "2018-09-19T10:34:09.330+0200"
+        }
+      ]
+    },
+    "workratio": 287
+  },
+  "id": "53875",
+  "key": "FIN-225",
+  "self": "https://somecompany.atlassian.net/rest/agile/1.0/issue/53875"
+}

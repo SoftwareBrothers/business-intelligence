@@ -134,7 +134,7 @@ class Builder {
   }
 
   async countWorkedHours(member) {
-    const worklogs = await this.tempo.worklogs({
+    const worklogs = await this.tempo.userWorklogs({
       username: member.username,
       from: moment(this.month).format('YYYY-MM-DD'),
       to: moment(this.month).endOf('month').format('YYYY-MM-DD'),
