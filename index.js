@@ -33,7 +33,7 @@ exports.incomeSynchroniser = async (event) => {
   return response
 }
 
-exports.report = async (event) => {
+exports.reportGenerator = async (event) => {
   const response = await reportGenerator({
     projects: event.params.querystring.projects,
     to: event.params.querystring.to,
