@@ -2,6 +2,7 @@ process.env.PATH = `${process.env.PATH}:${process.env.LAMBDA_TASK_ROOT}`
 
 const bankRunner = require('./bin/bank-runner')
 const incomeSynchroniser = require('./bin/income-synchroniser')
+const reportGenerator = require('./bin/report-generator')
 
 exports.bankRunner = async () => {
   const files = await bankRunner()
@@ -28,6 +29,16 @@ exports.incomeSynchroniser = async (event) => {
       month: event.params.querystring.month,
     },
   }
+
+  return response
+}
+
+exports.report = async (event) => {
+  const response = await reportGenerator({
+    projects: event.params.querystring.projects,
+    to: event.params.querystring.to,
+    from: event.params.querystring.from,
+  })
 
   return response
 }

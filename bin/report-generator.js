@@ -1,6 +1,6 @@
 require('dotenv').config()
 const moment = require('moment')
-const Raport = require('../src/raport')
+const Report = require('../src/report')
 const pug = require('pug')
 const fs = require('fs')
 
@@ -8,8 +8,8 @@ async function run({ projects, from, to }) {
   const projectIds = projects.split(',')
   const fromDate = moment(from)
   const toDate = moment(to)
-  const raport = new Raport({ projectIds, fromDate, toDate })
-  const data = await raport.build()
+  const report = new Report({ projectIds, fromDate, toDate })
+  const data = await report.build()
   const template = pug.compileFile('templates/report/index.pug')
   return template(data)
 }
