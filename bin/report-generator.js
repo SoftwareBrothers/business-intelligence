@@ -1,8 +1,7 @@
 require('dotenv').config()
 const moment = require('moment')
-const Report = require('../src/report')
 const pug = require('pug')
-const fs = require('fs')
+const Report = require('../src/report')
 
 async function run({ projects, from, to }) {
   const projectIds = projects.split(',')

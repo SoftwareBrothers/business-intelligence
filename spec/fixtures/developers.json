@@ -1,0 +1,22 @@
+[
+  {
+    "actorUser": {
+      "accountId": "557058:c016bdb9-539c-4502-9d1a-1547cef2e282"
+    },
+    "avatarUrl": "https://avatar-cdn.atlassian.com/67029e44f5c088b06c92d29997245541?s=16&d=https%3A%2F%2Fsomecompany.atlassian.net%2Fsecure%2Fuseravatar%3Fsize%3Dxsmall%26avatarId%3D10122%26noRedirect%3Dtrue",
+    "displayName": "Joseph aloror",
+    "id": 30377,
+    "name": "joseph.aloror",
+    "type": "atlassian-user-role-actor"
+  },
+  {
+    "actorUser": {
+      "accountId": "5b56d9041865dd73be10d917"
+    },
+    "avatarUrl": "https://avatar-cdn.atlassian.com/4b32547279b3575701857ab9092277d0?s=16&d=https%3A%2F%2Fsomecompany.atlassian.net%2Fsecure%2Fuseravatar%3Fsize%3Dxsmall%26avatarId%3D10122%26noRedirect%3Dtrue",
+    "displayName": "Max Ruso",
+    "id": 30636,
+    "name": "max.ruso",
+    "type": "atlassian-user-role-actor"
+  }
+]

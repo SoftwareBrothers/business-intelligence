@@ -52,10 +52,18 @@ html
                     span.title= developer.displayName
                     p Developer
 
-          .row
-            .col.s12
-              h5 Planned holidays
-              p TO BE IMPLEMENTED
+          if project.absenses
+            .row
+              .col.s12
+                h5 Planned holidays
+                ul.collection
+                  each absence in project.absenses
+                    li.collection-item.avatar
+                      img.circle(src=absence.member.avatarUrl)
+                      span.title= absence.member.displayName
+                      .row
+                        .col.s4 from: #{absence.dates.values[0].from}
+                        .col.s4 to: #{absence.dates.values[0].to}
           each sprint in project.board.sprints
             .row
               nav
@@ -68,6 +76,24 @@ html
                 p
                   b Sprint Goal: 
                   span= sprint.goal
+                p
+                  b Tasks Summary
+                table
+                  thead
+                    tr
+                      th Status
+                      th Tasks in status
+                      th Original Estimate
+                      th Remaining Estimate
+                      th Time Spent
+                    each val in sprint.summary
+                      tr
+                        td= val.status
+                        td= val.tasks
+                        td= val.originalEstimate
+                        td= val.remainingEstimate
+                        td= val.timeSpent
+
               .col.s12
                 table
                   thead
