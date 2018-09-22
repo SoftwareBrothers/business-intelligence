@@ -73,9 +73,24 @@ html
                     a.breadcrumb= sprint.name
             .row
               .col.s12
-                p
-                  b Sprint Goal: 
-                  span= sprint.goal
+                if sprint.goal
+                  p
+                    b Sprint Goal: 
+                    span= sprint.goal
+                .row
+                  .col.s3
+                    b Status: 
+                    = sprint.state
+                  .col.s3
+                    b Start Date: 
+                    = sprint.startDate && sprint.startDate.format('YYYY-MM-DD')
+                  .col.s3
+                    b Start Date: 
+                    = sprint.endDate && sprint.endDate.format('YYYY-MM-DD')
+                    if sprint.completeDate
+                      br
+                      b Complete Date: 
+                      = sprint.completeDate && sprint.completeDate.format('YYYY-MM-DD')
                 p
                   b Tasks Summary
                 table

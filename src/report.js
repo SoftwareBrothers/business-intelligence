@@ -22,6 +22,9 @@ class Raport {
       user: process.env.JIRA_USER,
       token: process.env.JIRA_TOKEN,
     })
+
+    this.errorMessages = []
+    this.allSprintsIssues = {}
   }
 
   async build() {
@@ -53,7 +56,10 @@ class Raport {
       m = m.concat(i)
       return m
     }, [])
-    // console.log(JSON.stringify(absenses))
+
+    const clients = await this.getRoles({ projectKey, role: CLIENTS_ROLE })
+    const sprints = await this.getSprints({ boardId: boards[0].id })
+    const { worklogIssues, worklogDevelopers } = await this.parseWorklogs({ worklogs })
 
     const ret = {
       id: project.id,
@@ -62,16 +68,28 @@ class Raport {
       name: project.name,
       roles: {
         developers,
-        clients: await this.getRoles({ projectKey, role: CLIENTS_ROLE }),
+        clients,
       },
       absenses,
       board: {
         id: boards[0].id,
-        sprints: await this.getSprints({ boardId: boards[0].id }),
+        sprints,
       },
       worklogs,
+      issues: this.allSprintsIssues,
     }
+
     return ret
+  }
+
+  async parseWorklogs({ worklogs }) {
+    const worklogIssues = {}
+    const worklogDevelopers = {}
+    worklogs.forEach((w) => {
+      worklogIssues[w.issue.key] = this.allSprintsIssues[w.issue.key] || w.issue.self
+      worklogDevelopers[w.author.username] = w.author
+    })
+    return { worklogIssues, worklogDevelopers }
   }
 
   async getAbsenses({ developers }) {
@@ -113,6 +131,7 @@ class Raport {
           timetracking: issue.fields.timetracking,
         }
       }).sort((a, b) => b.order - a.order)
+      this.addIssues({ issues })
 
       return {
         id: sprint.id,
@@ -122,42 +141,53 @@ class Raport {
         startDate: sprint.startDate && moment(sprint.startDate),
         completeDate: sprint.completeDate && moment(sprint.completeDate),
         endDate: sprint.endDate && moment(sprint.endDate),
-        summary: this.buildSprintSummary({ issues }),
+        summary: buildSprintSummary({ issues }),
         issues,
       }
     }))
   }
 
-  buildSprintSummary({ issues }) {
-    let summary = issues.reduce((m, issue) => {
-      m[issue.status.name] = m[issue.status.name] || {
-        status: issue.status.name,
-        tasks: 0,
-        originalEstimateSeconds: 0,
-        remainingEstimateSeconds: 0,
-        timeSpentSeconds: 0
-      }
-      m[issue.status.name].tasks += 1
-      m[issue.status.name].originalEstimateSeconds += issue.timetracking.originalEstimateSeconds || 0
-      m[issue.status.name].remainingEstimateSeconds += issue.timetracking.remainingEstimateSeconds || 0
-      m[issue.status.name].timeSpentSeconds += issue.timetracking.timeSpentSeconds || 0
-      return m
-    }, {})
-
-    return Object.keys(summary).map((key) => {
-      return {
-        status: summary[key].status,
-        tasks: summary[key].tasks,
-        originalEstimate: moment.duration({ seconds: summary[key].originalEstimateSeconds }).format('h[h], m[m]'),
-        remainingEstimate: moment.duration({ seconds: summary[key].remainingEstimateSeconds }).format('h[h], m[m]'),
-        timeSpent: moment.duration({ seconds: summary[key].timeSpentSeconds }).format('h[h], m[m]'),
-      }
-    })
-  }
-
   async getRoles({ projectKey, role }) {
     return this.jira.projectRoles({ projectKey, role })
   }
+
+  addIssues({ issues }) {
+    const issuesMap = issues.reduce((m, issue) => {
+      m[issue.key] = issue
+      return m
+    }, {})
+    Object.assign(this.allSprintsIssues, issuesMap)
+  }
+}
+
+function buildSprintSummary({ issues }) {
+  const summary = issues.reduce((m, issue) => {
+    m[issue.status.name] = m[issue.status.name] || {
+      status: issue.status.name,
+      tasks: 0,
+      originalEstimateSeconds: 0,
+      remainingEstimateSeconds: 0,
+      timeSpentSeconds: 0,
+    }
+    m[issue.status.name].tasks += 1
+    m[issue.status.name].originalEstimateSeconds
+      += issue.timetracking.originalEstimateSeconds || 0
+    m[issue.status.name].remainingEstimateSeconds
+      += issue.timetracking.remainingEstimateSeconds || 0
+    m[issue.status.name].timeSpentSeconds
+      += issue.timetracking.timeSpentSeconds || 0
+    return m
+  }, {})
+
+  return Object.keys(summary).map((key) => {
+    return {
+      status: summary[key].status,
+      tasks: summary[key].tasks,
+      originalEstimate: moment.duration({ seconds: summary[key].originalEstimateSeconds }).format('h[h], m[m]'),
+      remainingEstimate: moment.duration({ seconds: summary[key].remainingEstimateSeconds }).format('h[h], m[m]'),
+      timeSpent: moment.duration({ seconds: summary[key].timeSpentSeconds }).format('h[h], m[m]'),
+    }
+  })
 }
 
 module.exports = Raport
