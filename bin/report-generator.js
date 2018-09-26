@@ -15,7 +15,7 @@ async function run({ projects, from, to }) {
   if (true) {
     const report = new Report({ projectIds, fromDate, toDate })
     data = await report.build()
-    fs.writeFileSync('report.json', JSON.stringify(data))
+    // fs.writeFileSync('report.json', JSON.stringify(data))
   } else {
     data = JSON.parse(fs.readFileSync('report.json'))
   }
