@@ -4,146 +4,163 @@ html
     link(href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet")
     link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css")
     meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    <style type="text/css">
+      != css
+    </style>
+    <style type="text/css">
+      != fonts
+    </style>
   body
-    nav(class="light-blue lighten-1" role="navigation")
-      div(class="nav-wrapper container")
-        a(id="logo-container" href="#" class="brand-logo") Software Brothers
-    
-    section.section
-      .container
-        .row
-          .col.s12
-            table
-              thead
-                tr
-                  th Raport start date
-                  th Raport end date
-              tbody
-                tr
-                  td= fromDate.format('YYYY-MM-DD')
-                  td= toDate.format('YYYY-MM-DD')
-
     each project in projects
-      section.section
-        div.container
+      header.branding.container
+        row
+          col-s12
+            != images.logo
+            h2 
+              = project.name
+              span  report
+      section.timeline
+        .container
           .row
             .col.s12
-              h4 Project Name: #{project.name}
+              h5 Sprints
           .row
-            div.col.s12
-              h5 Project lead
-              ul.collection
-                li.collection-item.avatar
-                  img.circle(src=project.lead.avatarUrls['32x32'])
-                  span.title= project.lead.displayName
-                  p Project Manager
-              h5 Clients
-              ul.collection
-                each client in project.roles.clients
-                  li.collection-item.avatar
-                    img.circle(src=client.avatarUrl)
-                    span.title= client.displayName
-                    p Client
-              h5 Developers
-              ul.collection
-                each developer in project.roles.developers
-                  li.collection-item.avatar
-                    img.circle(src=developer.avatarUrl)
-                    span.title= developer.displayName
-                    p Developer
-
-          if project.absenses
-            .row
-              .col.s12
-                h5 Planned holidays
-                ul.collection
-                  each absence in project.absenses
-                    li.collection-item.avatar
-                      img.circle(src=absence.member.avatarUrl)
-                      span.title= absence.member.displayName
-                      .row
-                        .col.s4 from: #{absence.dates.values[0].from}
-                        .col.s4 to: #{absence.dates.values[0].to}
+            .col.s12
+              section.sprints-box
+                .title-wrapper
+                  .bg-wrapper
+                    h6 #{moment(fromDate).format('DD.MM.YYYY')} - #{moment(toDate).format('DD.MM.YYYY')}
+              .sprints-wrapper
+                each sprint in project.board.sprints
+                  .sprint(style="width: " + 100/project.board.sprints.length + '%')
+                    p.head
+                      = sprint.name
+                      span
+                        label Status: 
+                        b= sprint.state
+                    p.time
+                      if sprint.state == 'active'
+                        span.progress-indicator(style="width: " + moment().diff(moment(sprint.startDate), 'days')/moment(sprint.endDate).diff(moment(sprint.startDate), 'days')*100 + '%' )
+                      = moment(sprint.startDate).format('DD.MM.YYYY') 
+                      |  - 
+                      = moment(sprint.endDate).format('DD.MM.YYYY') 
+      section.main-section
+        .container
+          .row
+            .col.s12
+              h3 Sprints
+              p.sub Active or done sprints between the dates: #{moment(fromDate).format('DD.MM.YYYY')} - #{moment(toDate).format('DD.MM.YYYY')}
+        .container     
           each sprint in project.board.sprints
-            .row
-              nav
-                .nav-wrapper
-                  .col.s12
-                    a.breadcrumb Sprints
-                    a.breadcrumb= sprint.name
-            .row
-              .col.s12
-                if sprint.goal
-                  p
-                    b Sprint Goal: 
-                    span= sprint.goal
+            .single-sprint(class=sprint.state)
+              header
                 .row
-                  .col.s3
-                    b Status: 
-                    = sprint.state
-                  .col.s3
-                    b Start Date: 
-                    = sprint.startDate && sprint.startDate.format('YYYY-MM-DD')
-                  .col.s3
-                    b Start Date: 
-                    = sprint.endDate && sprint.endDate.format('YYYY-MM-DD')
+                  .col.s8
+                    h4
+                      = sprint.name
+                      span.badge=sprint.state
+                    if sprint.goal
+                      p=sprint.goal
+                  .col.s2 Start: #{moment(sprint.startDate).format('DD.MM.YYYY')}
+                  .col.s2
+                    | Planned finish: #{moment(sprint.endDate).format('DD.MM.YYYY')}
                     if sprint.completeDate
                       br
-                      b Complete Date: 
-                      = sprint.completeDate && sprint.completeDate.format('YYYY-MM-DD')
-                p
-                  b Tasks Summary
-                table
-                  thead
-                    tr
-                      th Status
-                      th Tasks in status
-                      th Original Estimate
-                      th Remaining Estimate
-                      th Time Spent
-                    each val in sprint.summary
-                      tr
-                        td= val.status
-                        td= val.tasks
-                        td= val.originalEstimate
-                        td= val.remainingEstimate
-                        td= val.timeSpent
+                      | Completed: #{moment(sprint.completeDate).format('DD.MM.YYYY')}
+              .formatted-list
+                .row.header
+                  .col.s2 Status
+                  .col.s3 Tasks in status
+                  .col.s2.right-align Time spent/Estimation
+                  .col.s4.right-align Time needed to finish
+                  .col.s1.center-align
+                each val in sprint.summary
+                  .row.summary-row
+                    .col.s2
+                      span.badge(class=val.status.toLowerCase().replace(' ', '-'))= val.status
+                    .col.s3= pluralize('issues', val.issues.length, true)
+                    .col.s2.right-align #{val.timeSpent}/#{val.originalEstimate}
+                    .col.s4.right-align= val.remainingEstimate
+                    .col.s1.center-align.buttons
+                      != images.angleUp
 
-              .col.s12
-                table
-                  thead
-                    tr
-                      th ISSUE
-                      th Summary
-                      th Estimation
-                      th Assignee
-                  tbody
-                    each issue in sprint.issues
-                      tr
-                        td= issue.key
-                        td
-                          h6= issue.summary
-                          .row
-                            .col.s6= issue.status.name
-                            .col.s6
-                              img.circle(src=issue.issuetype.iconUrl) 
-                              = issue.issuetype.name
-                        td
-                          b Estimated: 
-                          = issue.timetracking.originalEstimate
-                          br
-                          b Remaining: 
-                          = issue.timetracking.remainingEstimate
-                          br
-                          b Time spent: 
-                          = issue.timetracking.timeSpent
-                        td
-                          if issue.assignee
-                            img.circle(src=issue.assignee.avatarUrls['32x32']) 
-                            = issue.assignee.displayName
+                  .row.sub-list.collapsed
+                    .col.s12
+                      .row.header
+                        .col.s1.center-left Issue
+                        .col.s4 Summary
+                        .col.s2.right-align Time spent/Estimation
+                        .col.s2.right-align Time needed to finish
+                        .col.s2.right-align Assignee
+                      each issue in val.issues
+                        .row
+                          .col.s1.center-left= issue.key
+                          .col.s4= issue.summary
+                          .col.s2.right-align #{issue.timetracking.timeSpent}/#{issue.timetracking.originalEstimate}
+                          .col.s2.right-align= issue.timetracking.remainingEstimate
+                          .col.s2.right-align
+                            if issue.assignee
+                              img.circle(src=issue.assignee.avatarUrls['24x24'])
+      section.timeline
+        .container
+          .row
+            .col.s12
+              h5 Worklogs
+          .row
+            .col.s12
+              section.center-align
+                h6 #{moment(fromDate).format('DD.MM.YYYY')} - #{moment(toDate).format('DD.MM.YYYY')}
+      section.worklogs
+        .container
+          .formatted-list
+            .row.header
+              .col.s1.center-left Issue
+              .col.s4 Summary
+              .col.s2.right-align Time spent
+              .col.s2.right-align
+              .col.s2.right-align
+            each issueWrap, index in project.worklogIssues
+              .row.summary-row
+                .col.s1.center-left= issueWrap.issueKey
+                .col.s4
+                  = issueWrap.issue && issueWrap.issue.summary
+                  if issueWrap.issue
+                    br
+                    span.badge(class=issueWrap.issue.status.name.toLowerCase().replace(' ', '-'))= issueWrap.issue.status.name
+                .col.s2.right-align
+                  if issueWrap.issue
+                    | #{issueWrap.issue.timetracking.timeSpent}/#{issueWrap.issue.timetracking.originalEstimate}
+                .col.s2.right-align= issueWrap.issue && issueWrap.issue.timetracking.remainingEstimate
+                .col.s2.right-align
+                .col.s1.center-align.buttons
+                  != images.angleUp
+              .row.sub-list.collapsed
+                .col.s12
+                  .row.header
+                    .col.s1
+                    .col.s2.center-left Assignee
+                    .col.s4 Description
+                    .col.s2.right-align Time logged
+                    .col.s2.right-align Status
+                  each worklog in issueWrap.worklogs
+                    .row
+                      .col.s1
+                      .col.s2.center-left.valign-wrapper
+                        if project.worklogDevelopers[worklog.author.username].developer
+                          img.circle.responsive-img(src=project.worklogDevelopers[worklog.author.username].developer.avatarUrls['24x24']) 
+                        span= worklog.author.displayName
+                      .col.s4= worklog.description
+                      .col.s2.right-align= worklog.billable
+                      .col.s2.right-align Regular
 
 
 
 
     script(src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js")
+    script(src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous")
+    script.
+      $('.summary-row').click(function(){
+        $(this).toggleClass('active').next('.sub-list').toggleClass('collapsed');
+        return false;
+      })
 

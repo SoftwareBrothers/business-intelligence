@@ -5,10 +5,19 @@ const Jira = require('./jira-client')
 const Tempo = require('./tempo-client')
 
 const DEVELOPERS_ROLE = 10001
+const DEVELOPERS_GROUP = 'developers'
 const CLIENTS_ROLE = 10100
 const HOLIDAY_ISSUE = 'INT-1'
 const ISSUES_ORDER = ['Open', 'In Progress', 'Code Review', 'Testing', 'Completed', 'Merge']
 const IN_HOUR = 3600
+
+let durationFormat = () => {
+  if (this.duration.asSeconds() >= IN_HOUR*24) {
+    return 'd[d] h[h] m[m]'
+  } else if(this.duration.asSeconds() >= IN_HOUR) {
+    return 'h[h] m[m]'
+  }
+}
 
 class Raport {
   constructor({ projectIds, fromDate, toDate }) {
@@ -25,6 +34,7 @@ class Raport {
 
     this.errorMessages = []
     this.allSprintsIssues = {}
+    this.allSprintMembers = {}
   }
 
   async build() {
@@ -50,6 +60,11 @@ class Raport {
     const boards = await this.jira.boards({ projectKeyOrId: project.id })
     let developers = await this.getRoles({ projectKey, role: DEVELOPERS_ROLE })
     developers = developers.filter(d => d.type === 'atlassian-user-role-actor')
+    this.allSprintDevelopers = developers.reduce((m, developer) => {
+      m[developer.name] = developer
+      return m
+    }, {})
+    // console.log(JSON.stringify(this.allSprintDevelopers))
 
     let absenses = await this.getAbsenses({ developers })
     absenses = absenses.reduce((m, i) => {
@@ -77,6 +92,8 @@ class Raport {
       },
       worklogs,
       issues: this.allSprintsIssues,
+      worklogIssues,
+      worklogDevelopers,
     }
 
     return ret
@@ -85,10 +102,40 @@ class Raport {
   async parseWorklogs({ worklogs }) {
     const worklogIssues = {}
     const worklogDevelopers = {}
+    let allDevelopers = await this.jira.usersByGroup({ groupname: DEVELOPERS_GROUP })
+    allDevelopers = allDevelopers.reduce((m, d) => {
+      m[d.name] = d
+      return m
+    }, {})
     worklogs.forEach((w) => {
-      worklogIssues[w.issue.key] = this.allSprintsIssues[w.issue.key] || w.issue.self
-      worklogDevelopers[w.author.username] = w.author
+      w.timeSpent = moment.duration({ seconds: w.timeSpentSeconds }).format('d[d] h[h] m[m]')
+      w.billable = moment.duration({ seconds: w.billableSecconds }).format('d[d] h[h] m[m]')
+
+      if (worklogIssues[w.issue.key]) {
+        worklogIssues[w.issue.key].worklogs.push(w)
+      } else {
+        worklogIssues[w.issue.key] = {
+          issueKey: w.issue.key,
+          issue: this.allSprintsIssues[w.issue.key],
+          worklogs: [w],
+        }
+      }
+      if (worklogDevelopers[w.author.username]) {
+        worklogDevelopers[w.author.username].worklogs.push(w)
+      } else {
+        if (!allDevelopers[w.author.username] && !this.allSprintDevelopers[w.author.username]) {
+          // When user is not present in jira developers and in sprint developers
+          throw new Error(`User ${w.author.username} is not marked as developer`)
+        }
+        worklogDevelopers[w.author.username] = {
+          username: w.author,
+          teamMember: this.allSprintDevelopers[w.author.username] || null,
+          developer: allDevelopers[w.author.username],
+          worklogs: [w],
+        }
+      }
     })
+
     return { worklogIssues, worklogDevelopers }
   }
 
@@ -109,9 +156,10 @@ class Raport {
   async getSprints({ boardId }) {
     let sprints = await this.jira.sprints({ boardId })
     sprints = sprints.filter((s) => {
-      return moment(s.startDate).isBetween(this.fromDate, this.toDate)
-          || moment(s.endDate).isBetween(this.fromDate, this.toDate)
-    })
+      return (s.startDate && s.endDate)
+          && (moment(s.startDate).isBetween(this.fromDate, this.toDate)
+              || moment(s.endDate).isBetween(this.fromDate, this.toDate))
+    }).sort((a, b) => moment(b.startDate).valueOf() - moment(a.startDate).valueOf())
     return Promise.all(sprints.map(async (sprint) => {
       let issues = await this.jira.sprintIssues({
         boardId, sprintId: sprint.id })
@@ -164,12 +212,12 @@ function buildSprintSummary({ issues }) {
   const summary = issues.reduce((m, issue) => {
     m[issue.status.name] = m[issue.status.name] || {
       status: issue.status.name,
-      tasks: 0,
       originalEstimateSeconds: 0,
       remainingEstimateSeconds: 0,
       timeSpentSeconds: 0,
+      issues: [],
     }
-    m[issue.status.name].tasks += 1
+    m[issue.status.name].issues.push(issue)
     m[issue.status.name].originalEstimateSeconds
       += issue.timetracking.originalEstimateSeconds || 0
     m[issue.status.name].remainingEstimateSeconds
@@ -182,10 +230,10 @@ function buildSprintSummary({ issues }) {
   return Object.keys(summary).map((key) => {
     return {
       status: summary[key].status,
-      tasks: summary[key].tasks,
-      originalEstimate: moment.duration({ seconds: summary[key].originalEstimateSeconds }).format('h[h], m[m]'),
-      remainingEstimate: moment.duration({ seconds: summary[key].remainingEstimateSeconds }).format('h[h], m[m]'),
-      timeSpent: moment.duration({ seconds: summary[key].timeSpentSeconds }).format('h[h], m[m]'),
+      issues: summary[key].issues,
+      originalEstimate: moment.duration({ seconds: summary[key].originalEstimateSeconds }).format('d[d] h[h] m[m]'),
+      remainingEstimate: moment.duration({ seconds: summary[key].remainingEstimateSeconds }).format('d[d] h[h] m[m]'),
+      timeSpent: moment.duration({ seconds: summary[key].timeSpentSeconds }).format('d[d] h[h] m[m]'),
     }
   })
 }

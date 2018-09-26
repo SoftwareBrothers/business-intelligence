@@ -76,6 +76,13 @@ class Jira {
     return response.data.actors
   }
 
+  async usersByGroup({ groupname }) {
+    const response = await this.baseClient.get('group/member', {
+      params: { groupname, maxResults: 200 },
+    })
+    return response.data.values
+  }
+
   async categories() {
     await this.baseClient.get('projectCategory')
   }

@@ -1,0 +1,218 @@
+$font-color: #211D1A
+$color-red-bg: #F6574F
+$color-active-bg: #698AFF
+$color-gray-bg: #F7F8F9
+$color-gray-text: #54698D
+$color-gray-border: #E9E9E9
+
+$color-testing: #FBD85F
+$color-completed: #3BEB9E
+$color-open: #73DFFF
+$color-code-review: #F65E83
+$color-progress: #C97CFF
+$color-merge: #6586FF
+
+body
+  font-family: TTNorms-Regular
+  font-weight: normal
+  font-style: normal
+  color: $font-color
+
+h1,h2, h3, h4, h5, h6
+  margin: 0
+  padding: 0
+
+header.branding
+  padding: 35px
+  h1,h2
+    display: inline-block
+  h2
+    font-size: 24px
+    padding-left: 15px
+  svg
+    margin: -20px 40px -20px 0
+
+body .badge
+  float: none
+  background: #FFF
+  border-radius: 7px
+  color: $color-red-bg
+  text-transform: uppercase
+  font-size: 10px
+  padding: 4px 8px
+  font-family: TTNorms-Medium
+  &.testing
+    background-color: $color-testing
+    color: $font-color
+  &.code-review
+    background-color: $color-code-review
+    color: #fff
+  &.in-progress
+    background-color: $color-progress
+    color: #fff
+  &.open
+    background-color: $color-open
+    color: #fff
+  &.completed
+    background-color: $color-completed
+    color: $font-color
+  &.merge
+    background-color: $color-merge
+    color: #fff
+
+section.timeline
+  background: $color-red-bg
+  padding: 32px 0 15px
+  color: #fff
+
+  h5
+    text-align: center
+    color: #fff
+    font-size: 24
+  .sprints-box
+    border-style: dashed dashed none
+    border-color: #fff
+    border-radius: 5px 5px 0 0
+    border-width: 1px
+    padding: 50px 0 5px
+    text-align: center
+    margin-bottom: -10px;
+    .title-wrapper
+      margin-top: -60px
+      .bg-wrapper
+        display: inline-block
+        padding: 0 14px
+        background: $color-red-bg
+
+  h6
+    font-size: 18px
+    font-weight: 500
+    display: inline-block
+    border-bottom: 3px solid #fff
+
+  .sprints-wrapper
+    overflow: hidden
+    .sprint
+      float: right
+      position: relative
+      &:after
+        content: ''
+        position: absolute
+        width: 1px
+        bottom: 0px
+        left: 0
+        height: 44px
+        background: #fff
+        display: block
+      &:first-child:before
+        content: ''
+        position: absolute
+        width: 1px
+        bottom: 0px
+        right: 0
+        height: 44px
+        background: #fff
+        display: block
+      p
+        margin: 6px 0
+    .head
+      font-size: 14px
+      padding: 0 16px
+      span
+        float: right
+        font-size: 12px
+        label
+          opacity: 0.5
+          color: #fff
+        b
+          opacity: 1
+    .time
+      background: rgba(#fff, 0.2)
+      padding: 6px 17px
+      position: relative
+      font-size: 12px
+      .progress-indicator
+        position: absolute
+        top: 0
+        bottom: 0
+        left: 0
+        opacity: 0.2
+        background: linear-gradient(90deg, rgba(255,255,255,0) 0%, #FFFFFF 100%)
+
+section.main-section
+  h3
+    margin-top: 55px
+    font-size: 18px
+    font-weight: bold
+  p.sub
+    font-size: 10px
+    opacity: .5
+    margin-bottom: 0
+
+  .single-sprint
+    &> header
+      border-radius: 10px
+      background: $color-red-bg
+      padding: 12px 20px 24px
+      font-size: 10px
+      color: #fff
+      h4
+        font-size: 10px
+      .row
+        margin-bottom: 0
+      p
+        margin-bottom: 0px
+    &.active > header
+      background: $color-active-bg
+
+.summary-row
+  cursor: pointer
+  -webkit-transition: box-shadow 0.3s
+  transition: box-shadow 0.3s
+  margin-bottom: 0px
+  .col.buttons
+    svg
+      width: 15px
+      opacity: .3
+      transform: rotate(180deg)
+      -webkit-transition: transform 0.3s
+      transition: transform 0.3s
+      transition-timing-function: ease-in-out
+  &.active
+    box-shadow: 0px 2px 6px #ccc
+    .col.buttons svg
+      transform: rotate(0deg)
+
+.formatted-list
+  margin: 32px 0
+  .row.header
+    background: $color-gray-bg
+    border-radius: 22px
+    font-size: 12px
+    color: $color-gray-text
+  .row:not(.header)
+    border-bottom: 1px solid $color-gray-border
+    font-size: 12px
+  .col
+    padding: 14px
+
+.sub-list
+  background: $color-gray-bg
+  margin-top: -1px
+  box-shadow: 0px 4px 6px #ccc
+  &>.s12
+    padding-bottom: 0px
+  .row .col
+    padding: 5px 14px
+  .row:not(.header):last-child
+    margin-bottom: 0
+  &.collapsed
+    display: none
+  img.circle
+    width: 24px
+    margin-right: 9px
+
+.triangle
+  height: 7px
+  width: 12px
+  transform: scaleY(-1)
