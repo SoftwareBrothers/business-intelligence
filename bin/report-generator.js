@@ -12,7 +12,7 @@ async function run({ projects, from, to }) {
   const fromDate = moment(from)
   const toDate = moment(to)
   let data
-  if (false) {
+  if (true) {
     const report = new Report({ projectIds, fromDate, toDate })
     data = await report.build()
     fs.writeFileSync('report.json', JSON.stringify(data))
