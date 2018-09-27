@@ -108,19 +108,21 @@ html
                             p
                               span.right= duration(project.worklogDevelopers[person.developer.name].timeSpentSeconds)
                               | Regular: 
-          .row
-            .col.s12
-              h3 Holidays
-              .col.m9
-                .row
-                  each holiday in project.absenses
-                    .col.s6.team-member
-                      img.circle.responsive-img(src=holiday.member.avatarUrl)
-                      div
-                        h5= holiday.member.displayName
-                        p
-                          span.badge.spacer
-                            | #{holiday.dates.values[0].from} to #{holiday.dates.values[0].to}
+          
+          if project.absenses.length > 0
+            .row
+              .col.s12
+                h3 Holidays
+                .col.m9
+                  .row
+                    each holiday in project.absenses
+                      .col.s6.team-member
+                        img.circle.responsive-img(src=holiday.member.avatarUrl)
+                        div
+                          h5= holiday.member.displayName
+                          p
+                            span.badge.spacer
+                              | #{holiday.dates.values[0].from} to #{holiday.dates.values[0].to}
 
         .container
           .row
