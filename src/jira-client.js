@@ -71,6 +71,16 @@ class Jira {
     return response.data
   }
 
+  async search({ jql, fields = ['summary', 'status', 'assignee', 'timetracking'] }) {
+    this.a = 1
+    const response = await this.baseClient.post('search', {
+      jql,
+      maxResults: 100,
+      fields,
+    })
+    return response.data.issues
+  }
+
   async projectRoles({ projectKey, role }) {
     const response = await this.baseClient.get(`project/${projectKey}/role/${role}`)
     return response.data.actors

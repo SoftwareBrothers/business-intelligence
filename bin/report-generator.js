@@ -1,11 +1,13 @@
 require('dotenv').config()
 const moment = require('moment')
+require('moment-duration-format')
 const pluralize = require('pluralize')
 const pug = require('pug')
 const sass = require('node-sass')
 const fs = require('fs')
 const { promisify } = require('util')
 const Report = require('../src/report')
+const DURATION_FORMAT = 'h[h] m[m]'
 
 async function run({ projects, from, to }) {
   const projectIds = projects.split(',')
@@ -25,6 +27,14 @@ async function run({ projects, from, to }) {
   })
   data.css = style.css.toString('utf-8')
   data.moment = moment
+  data.duration = (seconds) => {
+    if (!seconds) {
+      return ' - '
+    }
+    return moment.duration({ seconds }).format(DURATION_FORMAT, {
+      trim: 'both',
+    })
+  }
   data.pluralize = pluralize
   data.fonts = fs.readFileSync('assets/styles/fonts.css', 'utf-8')
   data.images = {

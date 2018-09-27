@@ -9,15 +9,6 @@ const DEVELOPERS_GROUP = 'developers'
 const CLIENTS_ROLE = 10100
 const HOLIDAY_ISSUE = 'INT-1'
 const ISSUES_ORDER = ['Open', 'In Progress', 'Code Review', 'Testing', 'Completed', 'Merge']
-const IN_HOUR = 3600
-
-let durationFormat = () => {
-  if (this.duration.asSeconds() >= IN_HOUR*24) {
-    return 'd[d] h[h] m[m]'
-  } else if(this.duration.asSeconds() >= IN_HOUR) {
-    return 'h[h] m[m]'
-  }
-}
 
 class Raport {
   constructor({ projectIds, fromDate, toDate }) {
@@ -107,33 +98,50 @@ class Raport {
       m[d.name] = d
       return m
     }, {})
-    worklogs.forEach((w) => {
-      w.timeSpent = moment.duration({ seconds: w.timeSpentSeconds }).format('d[d] h[h] m[m]')
-      w.billable = moment.duration({ seconds: w.billableSecconds }).format('d[d] h[h] m[m]')
-
-      if (worklogIssues[w.issue.key]) {
-        worklogIssues[w.issue.key].worklogs.push(w)
+    worklogs.forEach((worklog) => {
+      if (worklogIssues[worklog.issue.key]) {
+        worklogIssues[worklog.issue.key].worklogs.push(worklog)
+        worklogIssues[worklog.issue.key].billableSeconds += worklog.billableSeconds
+        worklogIssues[worklog.issue.key].timeSpentSeconds += worklog.timeSpentSeconds
       } else {
-        worklogIssues[w.issue.key] = {
-          issueKey: w.issue.key,
-          issue: this.allSprintsIssues[w.issue.key],
-          worklogs: [w],
+        worklogIssues[worklog.issue.key] = {
+          issueKey: worklog.issue.key,
+          issue: this.allSprintsIssues[worklog.issue.key],
+          worklogs: [worklog],
+          billableSeconds: worklog.billableSeconds,
+          timeSpentSeconds: worklog.timeSpentSeconds,
         }
       }
-      if (worklogDevelopers[w.author.username]) {
-        worklogDevelopers[w.author.username].worklogs.push(w)
+      if (worklogDevelopers[worklog.author.username]) {
+        worklogDevelopers[worklog.author.username].worklogs.push(worklog)
+        worklogDevelopers[worklog.author.username].billableSeconds += worklog.billableSeconds
+        worklogDevelopers[worklog.author.username].timeSpentSeconds += worklog.timeSpentSeconds
       } else {
-        if (!allDevelopers[w.author.username] && !this.allSprintDevelopers[w.author.username]) {
+        if (!allDevelopers[worklog.author.username]
+         && !this.allSprintDevelopers[worklog.author.username]) {
           // When user is not present in jira developers and in sprint developers
-          throw new Error(`User ${w.author.username} is not marked as developer`)
+          throw new Error(`User ${worklog.author.username} is not marked as developer`)
         }
-        worklogDevelopers[w.author.username] = {
-          username: w.author,
-          teamMember: this.allSprintDevelopers[w.author.username] || null,
-          developer: allDevelopers[w.author.username],
-          worklogs: [w],
+        worklogDevelopers[worklog.author.username] = {
+          username: worklog.author,
+          teamMember: this.allSprintDevelopers[worklog.author.username] || null,
+          developer: allDevelopers[worklog.author.username],
+          worklogs: [worklog],
+          billableSeconds: worklog.billableSeconds,
+          timeSpentSeconds: worklog.timeSpentSeconds,
         }
       }
+    })
+
+    const missingIssueKeys = Object.keys(worklogIssues).filter((wiKey) => {
+      return !worklogIssues[wiKey].issue
+    })
+
+    const issues = await this.jira.search({ jql: `issueKey in (${missingIssueKeys.join(',')})` })
+    this.addIssues({ issues: issues.map(issueMapper) })
+
+    Object.keys(worklogIssues).forEach((issueKey) => {
+      worklogIssues[issueKey].issue = this.allSprintsIssues[issueKey]
     })
 
     return { worklogIssues, worklogDevelopers }
@@ -163,22 +171,7 @@ class Raport {
     return Promise.all(sprints.map(async (sprint) => {
       let issues = await this.jira.sprintIssues({
         boardId, sprintId: sprint.id })
-      issues = issues.map((issue) => {
-        return {
-          order: ISSUES_ORDER.indexOf(issue.fields.status.name),
-          id: issue.id,
-          key: issue.key,
-          summary: issue.fields.summary,
-          assignee: issue.fields.assignee,
-          epic: issue.fields.epic,
-          issuetype: issue.fields.issuetype,
-          progress: issue.fields.progress,
-          status: issue.fields.status,
-          resolution: issue.fields.resolution,
-          subtasks: issue.fields.subtasks,
-          timetracking: issue.fields.timetracking,
-        }
-      }).sort((a, b) => b.order - a.order)
+      issues = issues.map(issueMapper).sort((a, b) => b.order - a.order)
       this.addIssues({ issues })
 
       return {
@@ -204,7 +197,24 @@ class Raport {
       m[issue.key] = issue
       return m
     }, {})
-    Object.assign(this.allSprintsIssues, issuesMap)
+    this.allSprintsIssues = Object.assign({}, issuesMap, this.allSprintsIssues)
+  }
+}
+
+function issueMapper(issue) {
+  return {
+    order: ISSUES_ORDER.indexOf(issue.fields.status.name),
+    id: issue.id,
+    key: issue.key,
+    summary: issue.fields.summary,
+    assignee: issue.fields.assignee,
+    epic: issue.fields.epic,
+    issuetype: issue.fields.issuetype,
+    progress: issue.fields.progress,
+    status: issue.fields.status,
+    resolution: issue.fields.resolution,
+    subtasks: issue.fields.subtasks,
+    timetracking: issue.fields.timetracking,
   }
 }
 
@@ -231,9 +241,9 @@ function buildSprintSummary({ issues }) {
     return {
       status: summary[key].status,
       issues: summary[key].issues,
-      originalEstimate: moment.duration({ seconds: summary[key].originalEstimateSeconds }).format('d[d] h[h] m[m]'),
-      remainingEstimate: moment.duration({ seconds: summary[key].remainingEstimateSeconds }).format('d[d] h[h] m[m]'),
-      timeSpent: moment.duration({ seconds: summary[key].timeSpentSeconds }).format('d[d] h[h] m[m]'),
+      originalEstimateSeconds: summary[key].originalEstimateSeconds,
+      remainingEstimateSeconds: summary[key].remainingEstimateSeconds,
+      timeSpentSeconds: summary[key].timeSpentSeconds,
     }
   })
 }

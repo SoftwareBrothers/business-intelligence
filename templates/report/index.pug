@@ -48,6 +48,82 @@ html
         .container
           .row
             .col.s12
+              h3 Team members
+              .row
+                .col.m3 
+                  h4 PROJECT LEAD
+                .col.m9
+                  .row
+                    .col.s4
+                      .team-member
+                        img.circle.responsive-img(src=project.lead.avatarUrls['48x48'])
+                        div
+                          h5= project.lead.displayName
+                          p
+                            span.badge.spacer Total worked time
+                          p
+                            span.right= duration(project.worklogDevelopers[project.lead.name].timeSpentSeconds)
+                            | Regular: 
+              .row
+                .col.m3
+                  h4 CLIENTS
+                .col.m9
+                  .row
+                    each client in project.roles.clients
+                      .col.s4.team-member
+                        img.circle.responsive-img(src=client.avatarUrl)
+                        div
+                          h5= client.displayName
+              .row
+                .col.m3
+                  h4 PERMANENT DEVELOPERS
+                .col.m9
+                  .row
+                    each developer in project.roles.developers
+                      .col.s4.team-member
+                        img.circle.responsive-img(src=developer.avatarUrl)
+                        div
+                          h5= developer.displayName
+                          p
+                            span.badge.spacer Total worked time
+                          p
+                            span.right= duration(project.worklogDevelopers[developer.name].timeSpentSeconds)
+                            | Regular: 
+                          
+
+              .row
+                .col.m3
+                  h4 NON PERMANENT DEVELOPERS
+                .col.m9
+                  .row
+                    each person, key in project.worklogDevelopers
+                      if !person.teamMember && person.username.username != project.lead.name
+                        .col.s4.team-member
+                          img.circle.responsive-img(src=person.developer.avatarUrls['48x48'])
+                          div
+                            h5= person.developer.displayName
+                            p
+                              span.badge.spacer Total worked time
+                            p
+                              span.right= duration(project.worklogDevelopers[person.developer.name].timeSpentSeconds)
+                              | Regular: 
+          .row
+            .col.s12
+              h3 Holidays
+              .col.m9
+                .row
+                  each holiday in project.absenses
+                    .col.s6.team-member
+                      img.circle.responsive-img(src=holiday.member.avatarUrl)
+                      div
+                        h5= holiday.member.displayName
+                        p
+                          span.badge.spacer
+                            | #{holiday.dates.values[0].from} to #{holiday.dates.values[0].to}
+
+        .container
+          .row
+            .col.s12
               h3 Sprints
               p.sub Active or done sprints between the dates: #{moment(fromDate).format('DD.MM.YYYY')} - #{moment(toDate).format('DD.MM.YYYY')}
         .container     
@@ -79,8 +155,8 @@ html
                     .col.s2
                       span.badge(class=val.status.toLowerCase().replace(' ', '-'))= val.status
                     .col.s3= pluralize('issues', val.issues.length, true)
-                    .col.s2.right-align #{val.timeSpent}/#{val.originalEstimate}
-                    .col.s4.right-align= val.remainingEstimate
+                    .col.s2.right-align #{duration(val.timeSpentSeconds)}/#{duration(val.originalEstimateSeconds)}
+                    .col.s4.right-align= duration(val.remainingEstimateSeconds)
                     .col.s1.center-align.buttons
                       != images.angleUp
 
@@ -96,8 +172,8 @@ html
                         .row
                           .col.s1.center-left= issue.key
                           .col.s4= issue.summary
-                          .col.s2.right-align #{issue.timetracking.timeSpent}/#{issue.timetracking.originalEstimate}
-                          .col.s2.right-align= issue.timetracking.remainingEstimate
+                          .col.s2.right-align #{duration(issue.timetracking.timeSpentSeconds)}/#{duration(issue.timetracking.originalEstimateSeconds)}
+                          .col.s2.right-align= duration(issue.timetracking.remainingEstimateSeconds)
                           .col.s2.right-align
                             if issue.assignee
                               img.circle(src=issue.assignee.avatarUrls['24x24'])
@@ -116,9 +192,11 @@ html
             .row.header
               .col.s1.center-left Issue
               .col.s4 Summary
-              .col.s2.right-align Time spent
+              .col.s4.right-align Total time spent/Estimation
               .col.s2.right-align
-              .col.s2.right-align
+                | Time spent in period
+                br
+                span #{moment(fromDate).format('DD.MM.YYYY')} - #{moment(toDate).format('DD.MM.YYYY')}
             each issueWrap, index in project.worklogIssues
               .row.summary-row
                 .col.s1.center-left= issueWrap.issueKey
@@ -127,11 +205,10 @@ html
                   if issueWrap.issue
                     br
                     span.badge(class=issueWrap.issue.status.name.toLowerCase().replace(' ', '-'))= issueWrap.issue.status.name
-                .col.s2.right-align
+                .col.s4.right-align
                   if issueWrap.issue
-                    | #{issueWrap.issue.timetracking.timeSpent}/#{issueWrap.issue.timetracking.originalEstimate}
-                .col.s2.right-align= issueWrap.issue && issueWrap.issue.timetracking.remainingEstimate
-                .col.s2.right-align
+                    | #{duration(issueWrap.issue.timetracking.timeSpentSeconds)}/#{duration(issueWrap.issue.timetracking.originalEstimateSeconds)}
+                .col.s2.right-align=duration(issueWrap.timeSpentSeconds)
                 .col.s1.center-align.buttons
                   != images.angleUp
               .row.sub-list.collapsed
@@ -140,8 +217,8 @@ html
                     .col.s1
                     .col.s2.center-left Assignee
                     .col.s4 Description
-                    .col.s2.right-align Time logged
                     .col.s2.right-align Status
+                    .col.s2.right-align Time logged
                   each worklog in issueWrap.worklogs
                     .row
                       .col.s1
@@ -150,8 +227,8 @@ html
                           img.circle.responsive-img(src=project.worklogDevelopers[worklog.author.username].developer.avatarUrls['24x24']) 
                         span= worklog.author.displayName
                       .col.s4= worklog.description
-                      .col.s2.right-align= worklog.billable
                       .col.s2.right-align Regular
+                      .col.s2.right-align= duration(worklog.timeSpentSeconds)
 
 
 
