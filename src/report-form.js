@@ -27,6 +27,7 @@ class RaportForm {
       logo: fs.readFileSync('assets/images/logo.svg', 'utf-8'),
       angleUp: fs.readFileSync('assets/images/angle-up.svg', 'utf-8'),
     }
+    data.rootReportUrl = `https://${process.env.AWS_S3_BUCKET}/`
     const template = pug.compileFile('templates/report/form.pug')
     return template(data)
   }
