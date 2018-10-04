@@ -72,8 +72,8 @@ html
             return alert('"to date" has to be grater than "from date"')
           }
 
-          var projects = $('#projects').val().split('(')[1].split(')')[0];
-          var client = $('#projects').val().split('(')[0]
+          var projects = $.trim($('#projects').val().split('(')[1].split(')')[0]);
+          var client = $.trim($('#projects').val().split('(')[0])
 
           $('#progress').animate({opacity: 1});
           $('form#generator button').addClass('disabled');
