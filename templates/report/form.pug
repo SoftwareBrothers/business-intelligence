@@ -73,7 +73,8 @@ html
           var projects = $('#projects').val().split('(')[1].split(')')[0];
           var customer = $('#projects').val().split('(')[0]
 
-          $('#progress').animate({opacity: 1})
+          $('#progress').animate({opacity: 1});
+          $('form#generator button').addClass('disabled');
 
           $.ajax({
               url: ['?customer=', customer, '&to=', $('#dateTo').val(), '&from=', $('#dateFrom').val(), '&projects=', projects].join(''),
@@ -81,6 +82,7 @@ html
                 console.log(xhr, status)
                 $('#progress').animate({opacity: 0})
                 $('#filenameWrapper').show().find('span').text(xhr.responseText)
+                $('form#generator button').removeClass('disabled');
               }
             })
           return false;
