@@ -71,13 +71,13 @@ html
           }
 
           var projects = $('#projects').val().split('(')[1].split(')')[0];
-          var customer = $('#projects').val().split('(')[0]
+          var client = $('#projects').val().split('(')[0]
 
           $('#progress').animate({opacity: 1});
           $('form#generator button').addClass('disabled');
 
           $.ajax({
-              url: ['?customer=', customer, '&to=', $('#dateTo').val(), '&from=', $('#dateFrom').val(), '&projects=', projects].join(''),
+              url: ['?client=', client, '&to=', $('#dateTo').val(), '&from=', $('#dateFrom').val(), '&projects=', projects].join(''),
               complete: function(xhr, status){
                 console.log(xhr, status)
                 $('#progress').animate({opacity: 0})
