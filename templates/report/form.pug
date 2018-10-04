@@ -47,6 +47,7 @@ html
               .col.s12
                 label Filename 
                 span
+                a(href="#" target="_blank") Get File
 
     script.
       $(document).ready(function(){
@@ -82,8 +83,10 @@ html
               url: ['?client=', client, '&to=', $('#dateTo').val(), '&from=', $('#dateFrom').val(), '&projects=', projects].join(''),
               complete: function(xhr, status){
                 console.log(xhr, status)
-                $('#progress').animate({opacity: 0})
-                $('#filenameWrapper').show().find('span').text(rootReportUrl + xhr.responseText)
+                var url = rootReportUrl + xhr.responseText;
+                $('#progress').animate({opacity: 0});
+                $('#filenameWrapper').show().find('span').text(url);
+                $('#filenameWrapper').find('a').attr('href', url);
                 $('form#generator button').removeClass('disabled');
               }
             })
