@@ -25,8 +25,9 @@ class Jira {
   }
 
   async projects() {
+    const maxResults = 200
     const response = await this.baseClient.get('project/search', {
-      params: { categoryId: IN_PROGRESS },
+      params: { categoryId: IN_PROGRESS, maxResults },
     })
     return response.data.values
   }

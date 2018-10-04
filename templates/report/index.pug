@@ -20,51 +20,54 @@ html
             h2 
               = project.name
               span  report
-      section.timeline
-        .container
-          .row
-            .col.s12
-              h5 Sprints
-          .row
-            .col.s12
-              section.sprints-box
-                .title-wrapper
-                  .bg-wrapper
-                    h6 #{moment(fromDate).format('DD.MM.YYYY')} - #{moment(toDate).format('DD.MM.YYYY')}
-              .sprints-wrapper
-                each sprint in project.board.sprints
-                  .sprint(style="width: " + 100/project.board.sprints.length + '%')
-                    p.head
-                      = sprint.name
-                      span
-                        label Status: 
-                        b= sprint.state
-                    p.time
-                      if sprint.state == 'active'
-                        span.progress-indicator(style="width: " + moment().diff(moment(sprint.startDate), 'days')/moment(sprint.endDate).diff(moment(sprint.startDate), 'days')*100 + '%' )
-                      = moment(sprint.startDate).format('DD.MM.YYYY') 
-                      |  - 
-                      = moment(sprint.endDate).format('DD.MM.YYYY') 
+      if project.board.sprints.length > 0
+        section.timeline
+          .container
+            .row
+              .col.s12
+                h5 Sprints
+            .row
+              .col.s12
+                section.sprints-box
+                  .title-wrapper
+                    .bg-wrapper
+                      h6 #{moment(fromDate).format('DD.MM.YYYY')} - #{moment(toDate).format('DD.MM.YYYY')}
+                .sprints-wrapper
+                  each sprint in project.board.sprints
+                    .sprint(style="width: " + 100/project.board.sprints.length + '%')
+                      p.head
+                        = sprint.name
+                        span
+                          label Status: 
+                          b= sprint.state
+                      p.time
+                        if sprint.state == 'active'
+                          span.progress-indicator(style="width: " + moment().diff(moment(sprint.startDate), 'days')/moment(sprint.endDate).diff(moment(sprint.startDate), 'days')*100 + '%' )
+                        = moment(sprint.startDate).format('DD.MM.YYYY') 
+                        |  - 
+                        = moment(sprint.endDate).format('DD.MM.YYYY') 
       section.main-section
         .container
           .row
             .col.s12
               h3 Team members
-              .row
-                .col.m3 
-                  h4 PROJECT LEAD
-                .col.m9
-                  .row
-                    .col.s4
-                      .team-member
-                        img.circle.responsive-img(src=project.lead.avatarUrls['48x48'])
-                        div
-                          h5= project.lead.displayName
-                          p
-                            span.badge.spacer Total worked time
-                          p
-                            span.right= duration(project.worklogDevelopers[project.lead.name].timeSpentSeconds)
-                            | Regular: 
+              if project.lead
+                .row
+                  .col.m3 
+                    h4 PROJECT LEAD
+                  .col.m9
+                    .row
+                      .col.s4
+                        .team-member
+                          img.circle.responsive-img(src=project.lead.avatarUrls['48x48'])
+                          div
+                            h5= project.lead.displayName
+                            if project.worklogDevelopers[project.lead.name]
+                              p
+                                span.badge.spacer Total worked time
+                              p
+                                span.right= duration(project.worklogDevelopers[project.lead.name].timeSpentSeconds)
+                                | Regular: 
               .row
                 .col.m3
                   h4 CLIENTS
@@ -85,11 +88,12 @@ html
                         img.circle.responsive-img(src=developer.avatarUrl)
                         div
                           h5= developer.displayName
-                          p
-                            span.badge.spacer Total worked time
-                          p
-                            span.right= duration(project.worklogDevelopers[developer.name].timeSpentSeconds)
-                            | Regular: 
+                          if project.worklogDevelopers[developer.name]
+                            p
+                              span.badge.spacer Total worked time
+                            p
+                              span.right= duration(project.worklogDevelopers[developer.name].timeSpentSeconds)
+                              | Regular: 
                           
 
               .row
@@ -97,17 +101,16 @@ html
                   h4 NON PERMANENT DEVELOPERS
                 .col.m9
                   .row
-                    each person, key in project.worklogDevelopers
-                      if !person.teamMember && person.username.username != project.lead.name
-                        .col.s4.team-member
-                          img.circle.responsive-img(src=person.developer.avatarUrls['48x48'])
-                          div
-                            h5= person.developer.displayName
-                            p
-                              span.badge.spacer Total worked time
-                            p
-                              span.right= duration(project.worklogDevelopers[person.developer.name].timeSpentSeconds)
-                              | Regular: 
+                    each developer in project.roles.nonPermanent
+                      .col.s4.team-member
+                        img.circle.responsive-img(src=developer.avatarUrls['48x48'])
+                        div
+                          h5= developer.displayName
+                          p
+                            span.badge.spacer Total worked time
+                          p
+                            span.right= duration(project.worklogDevelopers[developer.name].timeSpentSeconds)
+                            | Regular: 
           
           if project.absenses.length > 0
             .row
@@ -124,11 +127,12 @@ html
                             span.badge.spacer
                               | #{holiday.dates.values[0].from} to #{holiday.dates.values[0].to}
 
-        .container
-          .row
-            .col.s12
-              h3 Sprints
-              p.sub Active or done sprints between the dates: #{moment(fromDate).format('DD.MM.YYYY')} - #{moment(toDate).format('DD.MM.YYYY')}
+        if project.board.sprints.length > 0
+          .container
+            .row
+              .col.s12
+                h3 Sprints
+                p.sub Active or done sprints between the dates: #{moment(fromDate).format('DD.MM.YYYY')} - #{moment(toDate).format('DD.MM.YYYY')}
         .container     
           each sprint in project.board.sprints
             .single-sprint(class=sprint.state)

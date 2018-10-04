@@ -3,6 +3,8 @@ process.env.PATH = `${process.env.PATH}:${process.env.LAMBDA_TASK_ROOT}`
 const bankRunner = require('./bin/bank-runner')
 const incomeSynchroniser = require('./bin/income-synchroniser')
 const reportGenerator = require('./bin/report-generator')
+const ReportForm = require('./src/report-form')
+const ReportUploader = require('./src/report-uploader')
 
 exports.bankRunner = async () => {
   const files = await bankRunner()
@@ -34,11 +36,22 @@ exports.incomeSynchroniser = async (event) => {
 }
 
 exports.reportGenerator = async (event) => {
-  const response = await reportGenerator({
-    projects: event.params.querystring.projects,
-    to: event.params.querystring.to,
-    from: event.params.querystring.from,
-  })
+  if (event.params && event.params.querystring && event.params.querystring.projects) {
+    const report = await reportGenerator({
+      projects: event.params.querystring.projects,
+      to: event.params.querystring.to,
+      from: event.params.querystring.from,
+    })
 
-  return response
+    const uploader = new ReportUploader({
+      client: event.params.querystring.client,
+      project: event.params.querystring.projects,
+      to: event.params.querystring.to,
+      from: event.params.querystring.from,
+      html: report,
+    })
+    return uploader.upload()
+  }
+  const form = new ReportForm()
+  return form.render()
 }

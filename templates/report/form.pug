@@ -1,0 +1,92 @@
+doctype html
+html
+  head
+    meta(charset="utf-8")
+    link(href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet")
+    link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    script(src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js")
+    <style type="text/css">
+      != css
+    </style>
+    <style type="text/css">
+      != fonts
+    </style>
+  body
+    header.branding.container
+      row
+        col-s12
+          != images.logo
+          h2 
+            span Report generator
+    .wrap.valign-wrapper(style='height: 400px')
+      .container
+        .row
+          form.col.s6.offset-s3(id="generator")
+            .row
+              .input-field.col.s12
+                input.autocomplete(type="text" id="projects")
+                label(for="autocomplete-input") Project
+            .row
+              .input-field.col.s6
+                input.datepicker(type="text" id="dateFrom")
+                label From
+              .input-field.col.s6
+                input.datepicker(type="text" id="dateTo")
+                label To
+            .row
+              .col.s12
+                button.btn.waves-effect.waves-light(type="submit")
+                  | Generate
+                  i.material-icons.right send
+            .progress(style='opacity: 0;' id='progress')
+              .indeterminate
+            .row(id='filenameWrapper' style="display: none;")
+              .col.s12
+                label Filename 
+                span
+
+    script.
+      $(document).ready(function(){
+        $('.datepicker').datepicker({
+          format: 'yyyy-mm-dd'
+        });
+        $('input.autocomplete').autocomplete({
+          data: !{JSON.stringify(projects)},
+        });
+
+        $('form#generator').submit(function(event){
+          event.preventDefault()
+          if($('#projects').val()==''){
+            return alert('you have to pick project')
+          }
+          if($('#dateFrom').val()=='' || $('#dateTo').val()==''){
+            return alert('you have to pick both from and to dates')
+          }
+
+          if(!moment($('#dateTo').val()).isAfter(moment($('#dateFrom').val()))){
+            return alert('"to date" has to be grater than "from date"')
+          }
+
+          var projects = $('#projects').val().split('(')[1].split(')')[0];
+          var customer = $('#projects').val().split('(')[0]
+
+          $('#progress').animate({opacity: 1})
+
+          $.ajax({
+              url: ['?customer=', customer, '&to=', $('#dateTo').val(), '&from=', $('#dateFrom').val(), '&projects=', projects].join(''),
+              complete: function(xhr, status){
+                console.log(xhr, status)
+                $('#progress').animate({opacity: 0})
+                $('#filenameWrapper').show().find('span').text(xhr.responseText)
+              }
+            })
+          return false;
+        });
+
+      });
+      
+      
+

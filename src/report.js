@@ -47,7 +47,6 @@ class Raport {
       from: this.fromDate.format('YYYY-MM-DD'),
       to: this.toDate.format('YYYY-MM-DD'),
     })
-
     const boards = await this.jira.boards({ projectKeyOrId: project.id })
     let developers = await this.getRoles({ projectKey, role: DEVELOPERS_ROLE })
     developers = developers.filter(d => d.type === 'atlassian-user-role-actor')
@@ -55,7 +54,6 @@ class Raport {
       m[developer.name] = developer
       return m
     }, {})
-    // console.log(JSON.stringify(this.allSprintDevelopers))
 
     let absenses = await this.getAbsenses({ developers })
     absenses = absenses.reduce((m, i) => {
@@ -64,9 +62,11 @@ class Raport {
     }, [])
 
     const clients = await this.getRoles({ projectKey, role: CLIENTS_ROLE })
-    const sprints = await this.getSprints({ boardId: boards[0].id })
+    let sprints = []
+    if (boards[0].type !== 'kanban') {
+      sprints = await this.getSprints({ boardId: boards[0].id })
+    }
     const { worklogIssues, worklogDevelopers } = await this.parseWorklogs({ worklogs })
-
     const ret = {
       id: project.id,
       key: project.key,
@@ -75,6 +75,12 @@ class Raport {
       roles: {
         developers,
         clients,
+        nonPermanent: Object.keys(worklogDevelopers).map((k) => {
+          const person = worklogDevelopers[k]
+          if (!person.teamMember && person.username.username !== project.lead.name) {
+            return person.developer
+          }
+        }).filter(x => x),
       },
       absenses,
       board: {
@@ -132,13 +138,14 @@ class Raport {
         }
       }
     })
-
     const missingIssueKeys = Object.keys(worklogIssues).filter((wiKey) => {
       return !worklogIssues[wiKey].issue
     })
 
-    const issues = await this.jira.search({ jql: `issueKey in (${missingIssueKeys.join(',')})` })
-    this.addIssues({ issues: issues.map(issueMapper) })
+    if (missingIssueKeys.length > 0) {
+      const issues = await this.jira.search({ jql: `issueKey in (${missingIssueKeys.join(',')})` })
+      this.addIssues({ issues: issues.map(issueMapper) })
+    }
 
     Object.keys(worklogIssues).forEach((issueKey) => {
       worklogIssues[issueKey].issue = this.allSprintsIssues[issueKey]

@@ -20,6 +20,16 @@ class Tempo {
     return response.data.results.map(m => m.member)
   }
 
+  async accounts() {
+    const response = await this.client.get('accounts')
+    return response.data.results
+  }
+
+  async accountLinks() {
+    const response = await this.client.get('account-links')
+    return response.data.results
+  }
+
   async plans({ username, from, to }) {
     const response = await this.client.get(`plans/user/${username}`, {
       params: { from, to },

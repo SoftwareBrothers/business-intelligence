@@ -51,6 +51,19 @@ if (!process.env.LAMBDA_TASK_ROOT) {
     from: process.env.FROM,
     to: process.env.TO,
   }).then((report) => {
+    if (process.env.STORE === 'true') {
+      const ReportUploader = require('../src/report-uploader')
+      let ru = new ReportUploader({
+        client: process.env.CLIENT,
+        project: process.env.PROJECTS,
+        from: process.env.FROM,
+        to: process.env.TO,
+        html: report,
+      })
+      ru.upload().then(f => {
+        console.log('filename', f)
+      })
+    }
     console.log(report)
   })
 }
