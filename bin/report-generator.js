@@ -63,8 +63,9 @@ if (!process.env.LAMBDA_TASK_ROOT) {
       ru.upload().then(f => {
         console.log('filename', f)
       })
+    } else {
+      console.log(report)
     }
-    console.log(report)
   })
 }
 

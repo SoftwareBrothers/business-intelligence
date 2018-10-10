@@ -13,6 +13,8 @@ html
     </style>
   body
     each project in projects
+      each error in project.errorMessages
+        p= error.message
       header.branding.container
         row
           col-s12
@@ -31,7 +33,7 @@ html
                 section.sprints-box
                   .title-wrapper
                     .bg-wrapper
-                      h6 #{moment(fromDate).format('DD.MM.YYYY')} - #{moment(toDate).format('DD.MM.YYYY')}
+                      h6 #{moment(project.reportedPeriod.startDate).format('DD.MM.YYYY')} - #{moment(project.reportedPeriod.finishDate).format('DD.MM.YYYY')}
                 .sprints-wrapper
                   each sprint in project.board.sprints
                     .sprint(style="width: " + 100/project.board.sprints.length + '%')
@@ -62,18 +64,19 @@ html
                           img.circle.responsive-img(src=project.lead.avatarUrls['48x48'])
                           div
                             h5= project.lead.displayName
-                            if project.worklogDevelopers[project.lead.name]
+                            - worklogDeveloper = project.worklogsParser.forDeveloper(project.lead.name, project.reportedPeriod)
+                            if worklogDeveloper
                               p
                                 span.badge.spacer Total worked time
                               p
-                                span.right= duration(project.worklogDevelopers[project.lead.name].timeSpentSeconds)
+                                span.right= duration(worklogDeveloper.timeSpentSeconds)
                                 | Regular: 
               .row
                 .col.m3
                   h4 CLIENTS
                 .col.m9
                   .row
-                    each client in project.roles.clients
+                    each client in project.usersStore.clients
                       .col.s4.team-member
                         img.circle.responsive-img(src=client.avatarUrl)
                         div
@@ -83,16 +86,17 @@ html
                   h4 PERMANENT DEVELOPERS
                 .col.m9
                   .row
-                    each developer in project.roles.developers
+                    each developer in project.usersStore.projectDevelopers
                       .col.s4.team-member
                         img.circle.responsive-img(src=developer.avatarUrl)
                         div
                           h5= developer.displayName
-                          if project.worklogDevelopers[developer.name]
+                          - worklogDeveloper = project.worklogsParser.forDeveloper(developer.name, project.reportedPeriod)
+                          if worklogDeveloper
                             p
                               span.badge.spacer Total worked time
                             p
-                              span.right= duration(project.worklogDevelopers[developer.name].timeSpentSeconds)
+                              span.right= duration(worklogDeveloper.timeSpentSeconds)
                               | Regular: 
                           
 
@@ -101,7 +105,7 @@ html
                   h4 NON PERMANENT DEVELOPERS
                 .col.m9
                   .row
-                    each developer in project.roles.nonPermanent
+                    each developer in project.usersStore.nonPermanentDevelopers()
                       .col.s4.team-member
                         img.circle.responsive-img(src=developer.avatarUrls['48x48'])
                         div
@@ -109,7 +113,8 @@ html
                           p
                             span.badge.spacer Total worked time
                           p
-                            span.right= duration(project.worklogDevelopers[developer.name].timeSpentSeconds)
+                            - worklogDeveloper = project.worklogsParser.forDeveloper(developer.name, project.reportedPeriod)
+                            span.right= duration(worklogDeveloper.timeSpentSeconds)
                             | Regular: 
           
           if project.absenses.length > 0
@@ -154,16 +159,18 @@ html
                 .row.header
                   .col.s2 Status
                   .col.s3 Tasks in status
+                  .col.s2
                   .col.s2.right-align Time spent/Estimation
-                  .col.s4.right-align Time needed to finish
+                  .col.s2.right-align Time needed to finish
                   .col.s1.center-align
                 each val in sprint.summary
                   .row.summary-row
                     .col.s2
                       span.badge(class=val.status.toLowerCase().replace(' ', '-'))= val.status
                     .col.s3= pluralize('issues', val.issues.length, true)
+                    .col.s2
                     .col.s2.right-align #{duration(val.timeSpentSeconds)}/#{duration(val.originalEstimateSeconds)}
-                    .col.s4.right-align= duration(val.remainingEstimateSeconds)
+                    .col.s2.right-align= duration(val.remainingEstimateSeconds)
                     .col.s1.center-align.buttons
                       != images.angleUp
 
@@ -172,18 +179,32 @@ html
                       .row.header
                         .col.s1.center-left Issue
                         .col.s4 Summary
+                        .col.s2.right-align Assignee
                         .col.s2.right-align Time spent/Estimation
                         .col.s2.right-align Time needed to finish
-                        .col.s2.right-align Assignee
                       each issue in val.issues
                         .row
                           .col.s1.center-left= issue.key
                           .col.s4= issue.summary
+                          .col.s2.right-align
+                            - issueWorklogs = project.worklogsParser.forIssue(issue.key)
+                            if issueWorklogs
+                              each developer in issueWorklogs.developers
+                                - user = project.usersStore.forUsername(developer.username)
+                                //- = JSON.stringify(developer.username)
+                                if user
+                                  img.circle.tooltipped(
+                                    data-position='top'
+                                    data-tooltip=duration(developer.billableSeconds)
+                                    src=user.avatarUrls['24x24']
+                                    title=duration(developer.billableSeconds)
+                                    )
+                                else 
+                                  = developer.username
+                            else if issue.assignee
+                              img.circle(src=issue.assignee.avatarUrls['24x24'])
                           .col.s2.right-align #{duration(issue.timetracking.timeSpentSeconds)}/#{duration(issue.timetracking.originalEstimateSeconds)}
                           .col.s2.right-align= duration(issue.timetracking.remainingEstimateSeconds)
-                          .col.s2.right-align
-                            if issue.assignee
-                              img.circle(src=issue.assignee.avatarUrls['24x24'])
       section.timeline
         .container
           .row
@@ -204,18 +225,20 @@ html
                 | Time spent in period
                 br
                 span #{moment(fromDate).format('DD.MM.YYYY')} - #{moment(toDate).format('DD.MM.YYYY')}
-            each issueWrap, index in project.worklogIssues
+            each issueWrap, index in project.worklogsParser.issues(project.reportedPeriod)
+              - issue = project.issues[issueWrap.key]
+              - issueWorklogs = project.worklogsParser.forIssue(issueWrap.key, project.reportedPeriod)
               .row.summary-row
-                .col.s1.center-left= issueWrap.issueKey
+                .col.s1.center-left= issueWrap.key
                 .col.s4
-                  = issueWrap.issue && issueWrap.issue.summary
-                  if issueWrap.issue
+                  if issue
+                    = issue.summary
                     br
-                    span.badge(class=issueWrap.issue.status.name.toLowerCase().replace(' ', '-'))= issueWrap.issue.status.name
+                    span.badge(class=issue.status.name.toLowerCase().replace(' ', '-'))= issue.status.name
                 .col.s4.right-align
-                  if issueWrap.issue
-                    | #{duration(issueWrap.issue.timetracking.timeSpentSeconds)}/#{duration(issueWrap.issue.timetracking.originalEstimateSeconds)}
-                .col.s2.right-align=duration(issueWrap.timeSpentSeconds)
+                  if issue
+                    | #{duration(issue.timetracking.timeSpentSeconds)}/#{duration(issue.timetracking.originalEstimateSeconds)}
+                .col.s2.right-align=duration(issueWorklogs.timeSpentSeconds)
                 .col.s1.center-align.buttons
                   != images.angleUp
               .row.sub-list.collapsed
@@ -226,19 +249,20 @@ html
                     .col.s4 Description
                     .col.s2.right-align Status
                     .col.s2.right-align Time logged
-                  each worklog in issueWrap.worklogs
+                  each worklog in issueWorklogs.worklogs
                     .row
                       .col.s1
                       .col.s2.center-left.valign-wrapper
-                        if project.worklogDevelopers[worklog.author.username].developer
-                          img.circle.responsive-img(src=project.worklogDevelopers[worklog.author.username].developer.avatarUrls['24x24']) 
-                        span= worklog.author.displayName
+                        - user = project.usersStore.forUsername(worklog.author.username)
+                        if user
+                          img.circle.responsive-img(src=user.avatarUrls['24x24']) 
+                          span= user.displayName
                       .col.s4= worklog.description
                       .col.s2.right-align Regular
                       .col.s2.right-align= duration(worklog.timeSpentSeconds)
 
 
-
+        //- = JSON.stringify(project.usersStore.allJiraDevelopersMap)
 
     script(src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js")
     script(src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous")
@@ -247,4 +271,11 @@ html
         $(this).toggleClass('active').next('.sub-list').toggleClass('collapsed');
         return false;
       })
+
+      $(document).ready(function(){
+        $('.tooltipped').each(function(e) {
+          M.Tooltip.init(this)
+          })
+      });
+
 

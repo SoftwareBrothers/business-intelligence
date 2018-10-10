@@ -4,6 +4,9 @@ const momentDurationFormatSetup = require('moment-duration-format')
 const Jira = require('./jira-client')
 const Tempo = require('./tempo-client')
 
+const WorklogsParser = require('./report/worklogs-parser')
+const UsersStore = require('./report/users-store')
+
 const DEVELOPERS_ROLE = 10001
 const DEVELOPERS_GROUP = 'developers'
 const CLIENTS_ROLE = 10100
@@ -13,6 +16,10 @@ const ISSUES_ORDER = ['Open', 'In Progress', 'Code Review', 'Testing', 'Complete
 class Raport {
   constructor({ projectIds, fromDate, toDate }) {
     this.projectIds = projectIds
+    this.reportedPeriod = {
+      startDate: fromDate.startOf('day'),
+      finishDate: toDate.endOf('day'),
+    }
     this.fromDate = fromDate.startOf('day')
     this.toDate = toDate.endOf('day')
 
@@ -25,7 +32,6 @@ class Raport {
 
     this.errorMessages = []
     this.allSprintsIssues = {}
-    this.allSprintMembers = {}
   }
 
   async build() {
@@ -40,122 +46,67 @@ class Raport {
     }
   }
 
-  async getProject({ projectKey }) {
-    const project = await this.jira.project({ projectKey })
+  async buildWorklogsParser({ projectKey }) {
     const worklogs = await this.tempo.projectWorklogs({
       projectKey,
-      from: this.fromDate.format('YYYY-MM-DD'),
-      to: this.toDate.format('YYYY-MM-DD'),
+      from: this.fromDate.clone().subtract(2, 'months').format('YYYY-MM-DD'),
+      to: this.toDate.clone().add(1, 'month').format('YYYY-MM-DD'),
     })
-    const boards = await this.jira.boards({ projectKeyOrId: project.id })
-    let developers = await this.getRoles({ projectKey, role: DEVELOPERS_ROLE })
-    developers = developers.filter(d => d.type === 'atlassian-user-role-actor')
-    this.allSprintDevelopers = developers.reduce((m, developer) => {
-      m[developer.name] = developer
-      return m
-    }, {})
 
-    let absenses = await this.getAbsenses({ developers })
-    absenses = absenses.reduce((m, i) => {
-      m = m.concat(i)
-      return m
-    }, [])
+    return new WorklogsParser({ worklogs })
+  }
 
+  async buildUsersStore({ projectKey, worklogDeveloperKeys }) {
+    const allJiraDevelopers = await this.jira.usersByGroup({ groupname: DEVELOPERS_GROUP })
+    const projectDevelopers = await this.getRoles({ projectKey, role: DEVELOPERS_ROLE })
     const clients = await this.getRoles({ projectKey, role: CLIENTS_ROLE })
+    return new UsersStore({
+      allJiraDevelopers, projectDevelopers, clients, worklogDeveloperKeys,
+    })
+  }
+
+  async getProject({ projectKey }) {
+    const project = await this.jira.project({ projectKey })
+    const boards = await this.jira.boards({ projectKeyOrId: project.id })
     let sprints = []
     if (boards[0].type !== 'kanban') {
       sprints = await this.getSprints({ boardId: boards[0].id })
     }
-    const { worklogIssues, worklogDevelopers } = await this.parseWorklogs({ worklogs })
+
+    const worklogsParser = await this.buildWorklogsParser({ projectKey })
+    const usersStore = await this.buildUsersStore({
+      projectKey,
+      worklogDeveloperKeys: Object.keys(worklogsParser.worklogDevelopers),
+    })
+
+    const absenses = await this.getAbsenses({ developers: usersStore.projectDevelopers })
+
+    await this.fetchMissingIssues({
+      issuesFromWorklogs: worklogsParser.issues(this.reportedPeriod),
+    })
+
     const ret = {
       id: project.id,
       key: project.key,
       lead: project.lead,
       name: project.name,
-      roles: {
-        developers,
-        clients,
-        nonPermanent: Object.keys(worklogDevelopers).map((k) => {
-          const person = worklogDevelopers[k]
-          if (!person.teamMember && person.username.username !== project.lead.name) {
-            return person.developer
-          }
-        }).filter(x => x),
-      },
+      worklogsParser,
+      usersStore,
       absenses,
       board: {
         id: boards[0].id,
         sprints,
       },
-      worklogs,
       issues: this.allSprintsIssues,
-      worklogIssues,
-      worklogDevelopers,
+      errorMessages: this.errorMessages,
+      reportedPeriod: this.reportedPeriod,
     }
 
     return ret
   }
 
-  async parseWorklogs({ worklogs }) {
-    const worklogIssues = {}
-    const worklogDevelopers = {}
-    let allDevelopers = await this.jira.usersByGroup({ groupname: DEVELOPERS_GROUP })
-    allDevelopers = allDevelopers.reduce((m, d) => {
-      m[d.name] = d
-      return m
-    }, {})
-    worklogs.forEach((worklog) => {
-      if (worklogIssues[worklog.issue.key]) {
-        worklogIssues[worklog.issue.key].worklogs.push(worklog)
-        worklogIssues[worklog.issue.key].billableSeconds += worklog.billableSeconds
-        worklogIssues[worklog.issue.key].timeSpentSeconds += worklog.timeSpentSeconds
-      } else {
-        worklogIssues[worklog.issue.key] = {
-          issueKey: worklog.issue.key,
-          issue: this.allSprintsIssues[worklog.issue.key],
-          worklogs: [worklog],
-          billableSeconds: worklog.billableSeconds,
-          timeSpentSeconds: worklog.timeSpentSeconds,
-        }
-      }
-      if (worklogDevelopers[worklog.author.username]) {
-        worklogDevelopers[worklog.author.username].worklogs.push(worklog)
-        worklogDevelopers[worklog.author.username].billableSeconds += worklog.billableSeconds
-        worklogDevelopers[worklog.author.username].timeSpentSeconds += worklog.timeSpentSeconds
-      } else {
-        if (!allDevelopers[worklog.author.username]
-         && !this.allSprintDevelopers[worklog.author.username]) {
-          // When user is not present in jira developers and in sprint developers
-          throw new Error(`User ${worklog.author.username} is not marked as developer`)
-        }
-        worklogDevelopers[worklog.author.username] = {
-          username: worklog.author,
-          teamMember: this.allSprintDevelopers[worklog.author.username] || null,
-          developer: allDevelopers[worklog.author.username],
-          worklogs: [worklog],
-          billableSeconds: worklog.billableSeconds,
-          timeSpentSeconds: worklog.timeSpentSeconds,
-        }
-      }
-    })
-    const missingIssueKeys = Object.keys(worklogIssues).filter((wiKey) => {
-      return !worklogIssues[wiKey].issue
-    })
-
-    if (missingIssueKeys.length > 0) {
-      const issues = await this.jira.search({ jql: `issueKey in (${missingIssueKeys.join(',')})` })
-      this.addIssues({ issues: issues.map(issueMapper) })
-    }
-
-    Object.keys(worklogIssues).forEach((issueKey) => {
-      worklogIssues[issueKey].issue = this.allSprintsIssues[issueKey]
-    })
-
-    return { worklogIssues, worklogDevelopers }
-  }
-
   async getAbsenses({ developers }) {
-    return Promise.all(developers.map(async (member) => {
+    const absenses = await Promise.all(developers.map(async (member) => {
       const plans = await this.tempo.plans({
         username: member.name,
         from: this.fromDate.format('YYYY-MM-DD'),
@@ -166,14 +117,18 @@ class Raport {
             && plan.planItem.self.match(HOLIDAY_ISSUE)
       }).map(plan => Object.assign(plan, { member }))
     }))
+
+    return absenses.reduce((m, i) => {
+      m = m.concat(i)
+      return m
+    }, [])
   }
 
   async getSprints({ boardId }) {
     let sprints = await this.jira.sprints({ boardId })
     sprints = sprints.filter((s) => {
       return (s.startDate && s.endDate)
-          && (moment(s.startDate).isBetween(this.fromDate, this.toDate)
-              || moment(s.endDate).isBetween(this.fromDate, this.toDate))
+          && (moment(s.startDate).isBetween(this.fromDate, this.toDate))
     }).sort((a, b) => moment(b.startDate).valueOf() - moment(a.startDate).valueOf())
     return Promise.all(sprints.map(async (sprint) => {
       let issues = await this.jira.sprintIssues({
@@ -193,6 +148,14 @@ class Raport {
         issues,
       }
     }))
+  }
+
+  async fetchMissingIssues({ issuesFromWorklogs }) {
+    const missingIssueKeys = Object.keys(issuesFromWorklogs).filter((wiKey) => {
+      return !this.allSprintsIssues[wiKey]
+    })
+    const issues = await this.jira.search({ jql: `issueKey in (${missingIssueKeys.join(',')})` })
+    this.addIssues({ issues: issues.map(issueMapper) })
   }
 
   async getRoles({ projectKey, role }) {
