@@ -11,7 +11,7 @@ class SQSTrigger {
   async send() {
     await this.sqs.sendMessage({
       MessageBody: JSON.stringify(this.params),
-      QueueUrl: process.env.QUEUE_URL,
+      QueueUrl: process.env.AWS_QUEUE_URL,
     }).promise()
     return this.key()
   }
