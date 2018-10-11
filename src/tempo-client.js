@@ -37,7 +37,7 @@ class Tempo {
     return response.data.results
   }
 
-  async userWorklogs({ username, from, to, limit = 500, offset = 0 }) {
+  async userWorklogs({ username, from, to, limit = 1000, offset = 0 }) {
     const response = await this.client.get(`worklogs/user/${username}`, {
       params: {
         from, to, limit, offset,

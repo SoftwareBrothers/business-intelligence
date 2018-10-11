@@ -13,6 +13,10 @@ const mapItem = (mem, worklog, key) => {
 }
 
 class WorklogsParser {
+  static authorKey(author) {
+    return author.username || author.name || author.displayName
+  }
+
   constructor({ worklogs } = {}) {
     this.worklogs = worklogs || []
 
@@ -24,8 +28,9 @@ class WorklogsParser {
 
   mapWorklogs() {
     this.worklogs.forEach((worklog) => {
+      const authorKey = WorklogsParser.authorKey(worklog.author)
       this.worklogIssues = mapItem(this.worklogIssues, worklog, worklog.issue.key)
-      this.worklogDevelopers = mapItem(this.worklogDevelopers, worklog, worklog.author.username)
+      this.worklogDevelopers = mapItem(this.worklogDevelopers, worklog, authorKey)
     })
   }
 
@@ -51,15 +56,16 @@ class WorklogsParser {
     }
 
     const data = worklogs.reduce((m, w) => {
+      const key = WorklogsParser.authorKey(w.author)
       m.timeSpentSeconds += w.timeSpentSeconds
       m.billableSeconds += w.billableSeconds
-      m.developers[w.author.username] = m.developers[w.author.username] || {
+      m.developers[key] = m.developers[key] || {
         timeSpentSeconds: 0,
         billableSeconds: 0,
-        username: w.author.username,
+        username: key,
       }
-      m.developers[w.author.username].timeSpentSeconds += w.timeSpentSeconds
-      m.developers[w.author.username].billableSeconds += w.billableSeconds
+      m.developers[key].timeSpentSeconds += w.timeSpentSeconds
+      m.developers[key].billableSeconds += w.billableSeconds
       return m
     }, {
       timeSpentSeconds: 0,
@@ -76,7 +82,22 @@ class WorklogsParser {
     }
   }
 
-  forDeveloper(username, reportedPeriod) {
+  developers(reportedPeriod) {
+    return Object.keys(this.worklogDevelopers).map((username) => {
+      return this.forDeveloper({ username }, reportedPeriod)
+    }).filter(u => u.timeSpentSeconds && u.timeSpentSeconds > 0)
+  }
+
+  forDeveloper(author, reportedPeriod) {
+    let username
+    if (author.username && this.worklogDevelopers[author.username]) {
+      username = author.username
+    } else if (author.name && this.worklogDevelopers[author.name]) {
+      username = author.name
+    } else {
+      username = author.displayName
+    }
+
     if (!this.worklogDevelopers[username]) {
       return null
     }

@@ -89,7 +89,7 @@ class Jira {
 
   async usersByGroup({ groupname }) {
     const response = await this.baseClient.get('group/member', {
-      params: { groupname, maxResults: 200 },
+      params: { groupname, maxResults: 200, includeInactiveUsers: true },
     })
     return response.data.values
   }

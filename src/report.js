@@ -11,7 +11,20 @@ const DEVELOPERS_ROLE = 10001
 const DEVELOPERS_GROUP = 'developers'
 const CLIENTS_ROLE = 10100
 const HOLIDAY_ISSUE = 'INT-1'
-const ISSUES_ORDER = ['Open', 'In Progress', 'Code Review', 'Testing', 'Completed', 'Merge']
+const ISSUES_MAP = {
+  Open: 'Open',
+  'In Progress': 'In Progress',
+  'Code Review': 'In Progress',
+  Testing: 'Testing',
+  Completed: 'Completed',
+  Merge: 'Completed',
+  Reopened: 'In Progress',
+  'for staging': 'Completed',
+  Tested: 'Completed',
+  Backlog: 'Open',
+}
+
+const ISSUES_ORDER = ['Open', 'In Progress', 'Testing', 'Completed', 'Released']
 
 class Raport {
   constructor({ projectIds, fromDate, toDate }) {
@@ -20,8 +33,6 @@ class Raport {
       startDate: fromDate.startOf('day'),
       finishDate: toDate.endOf('day'),
     }
-    this.fromDate = fromDate.startOf('day')
-    this.toDate = toDate.endOf('day')
 
     this.tempo = new Tempo({ token: process.env.TEMPO_TOKEN })
     this.jira = new Jira({
@@ -39,29 +50,33 @@ class Raport {
       projectKey,
     })))
     return {
+      jiraHost: `https://${process.env.JIRA_HOST}.atlassian.net`,
       projects,
-      fromDate: this.fromDate,
-      toDate: this.toDate,
-      issueStatuses: ISSUES_ORDER,
+      reportedPeriod: this.reportedPeriod,
+      issueStatuses: ISSUES_MAP,
     }
   }
 
   async buildWorklogsParser({ projectKey }) {
     const worklogs = await this.tempo.projectWorklogs({
       projectKey,
-      from: this.fromDate.clone().subtract(2, 'months').format('YYYY-MM-DD'),
-      to: this.toDate.clone().add(1, 'month').format('YYYY-MM-DD'),
+      from: this.reportedPeriod.startDate.clone().subtract(5, 'months').format('YYYY-MM-DD'),
+      to: this.reportedPeriod.finishDate.clone().add(1, 'month').format('YYYY-MM-DD'),
     })
 
     return new WorklogsParser({ worklogs })
   }
 
-  async buildUsersStore({ projectKey, worklogDeveloperKeys }) {
+  async buildUsersStore({ projectKey, worklogDeveloperKeys, project }) {
     const allJiraDevelopers = await this.jira.usersByGroup({ groupname: DEVELOPERS_GROUP })
     const projectDevelopers = await this.getRoles({ projectKey, role: DEVELOPERS_ROLE })
     const clients = await this.getRoles({ projectKey, role: CLIENTS_ROLE })
     return new UsersStore({
-      allJiraDevelopers, projectDevelopers, clients, worklogDeveloperKeys,
+      allJiraDevelopers,
+      projectDevelopers,
+      clients,
+      worklogDeveloperKeys,
+      projectLead: project.lead,
     })
   }
 
@@ -76,7 +91,8 @@ class Raport {
     const worklogsParser = await this.buildWorklogsParser({ projectKey })
     const usersStore = await this.buildUsersStore({
       projectKey,
-      worklogDeveloperKeys: Object.keys(worklogsParser.worklogDevelopers),
+      project,
+      worklogDeveloperKeys: worklogsParser.developers(this.reportedPeriod).map(u => u.username),
     })
 
     const absenses = await this.getAbsenses({ developers: usersStore.projectDevelopers })
@@ -99,7 +115,6 @@ class Raport {
       },
       issues: this.allSprintsIssues,
       errorMessages: this.errorMessages,
-      reportedPeriod: this.reportedPeriod,
     }
 
     return ret
@@ -109,8 +124,8 @@ class Raport {
     const absenses = await Promise.all(developers.map(async (member) => {
       const plans = await this.tempo.plans({
         username: member.name,
-        from: this.fromDate.format('YYYY-MM-DD'),
-        to: this.toDate.add(6, 'months').format('YYYY-MM-DD'),
+        from: this.reportedPeriod.startDate.format('YYYY-MM-DD'),
+        to: this.reportedPeriod.finishDate.clone().add(6, 'months').format('YYYY-MM-DD'),
       })
       return plans.filter((plan) => {
         return plan.planItem.type === 'ISSUE'
@@ -128,7 +143,7 @@ class Raport {
     let sprints = await this.jira.sprints({ boardId })
     sprints = sprints.filter((s) => {
       return (s.startDate && s.endDate)
-          && (moment(s.startDate).isBetween(this.fromDate, this.toDate))
+          && (moment(s.startDate).isBetween(this.reportedPeriod.startDate, this.reportedPeriod.finishDate))
     }).sort((a, b) => moment(b.startDate).valueOf() - moment(a.startDate).valueOf())
     return Promise.all(sprints.map(async (sprint) => {
       let issues = await this.jira.sprintIssues({
@@ -173,7 +188,7 @@ class Raport {
 
 function issueMapper(issue) {
   return {
-    order: ISSUES_ORDER.indexOf(issue.fields.status.name),
+    order: ISSUES_ORDER.indexOf(ISSUES_MAP[issue.fields.status.name] || issue.fields.status.name),
     id: issue.id,
     key: issue.key,
     summary: issue.fields.summary,
@@ -190,19 +205,20 @@ function issueMapper(issue) {
 
 function buildSprintSummary({ issues }) {
   const summary = issues.reduce((m, issue) => {
-    m[issue.status.name] = m[issue.status.name] || {
-      status: issue.status.name,
+    const status = ISSUES_MAP[issue.status.name] || issue.status.name
+    m[status] = m[status] || {
+      status,
       originalEstimateSeconds: 0,
       remainingEstimateSeconds: 0,
       timeSpentSeconds: 0,
       issues: [],
     }
-    m[issue.status.name].issues.push(issue)
-    m[issue.status.name].originalEstimateSeconds
+    m[status].issues.push(issue)
+    m[status].originalEstimateSeconds
       += issue.timetracking.originalEstimateSeconds || 0
-    m[issue.status.name].remainingEstimateSeconds
+    m[status].remainingEstimateSeconds
       += issue.timetracking.remainingEstimateSeconds || 0
-    m[issue.status.name].timeSpentSeconds
+    m[status].timeSpentSeconds
       += issue.timetracking.timeSpentSeconds || 0
     return m
   }, {})

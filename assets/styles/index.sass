@@ -180,6 +180,7 @@ section.main-section
       background: $color-active-bg
   .team-member
     overflow: hidden
+    margin-bottom: 10px
     img
       float: left
       width: 48px
@@ -201,12 +202,16 @@ section.main-section
         padding-right: 20px
     &>div
       margin-left: 64px
+    &:nth-child(4n)
+      clear: both
 
 .summary-row
   cursor: pointer
   -webkit-transition: box-shadow 0.3s
   transition: box-shadow 0.3s
   margin-bottom: 0px
+  .col.issue-key
+    white-space: nowrap
   .col.buttons
     svg
       width: 15px
