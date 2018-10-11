@@ -36,6 +36,22 @@ exports.incomeSynchroniser = async (event) => {
 }
 
 exports.reportGenerator = async (event) => {
+  // event from AWS SQS has Records
+  if (event.Records) {
+    const message = event.Records[0]
+    const params = JSON.parse(message.body)
+    const report = await reportGenerator(params)
+
+    const uploader = new ReportUploader({
+      client: params.client,
+      project: params.projects,
+      to: params.to,
+      from: params.from,
+      html: report,
+    })
+    return uploader.upload()
+  }
+
   if (event.params && event.params.querystring && event.params.querystring.projects) {
     const report = await reportGenerator({
       projects: event.params.querystring.projects,
