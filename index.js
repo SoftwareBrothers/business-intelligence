@@ -56,7 +56,7 @@ exports.reportGenerator = async (event) => {
   if (event.params && event.params.querystring && event.params.querystring.projects) {
     const sqsTrigger = new SQSTrigger({
       client: event.params.querystring.client,
-      project: event.params.querystring.projects,
+      projects: event.params.querystring.projects,
       to: event.params.querystring.to,
       from: event.params.querystring.from,
     })

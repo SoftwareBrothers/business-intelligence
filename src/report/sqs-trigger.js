@@ -20,7 +20,7 @@ class SQSTrigger {
   }
 
   key() {
-    return `${this.params.client}/${this.params.project}_${this.params.from}-${this.params.to}.html`
+    return `${this.params.client}/${this.params.projects}_${this.params.from}-${this.params.to}.html`
   }
 }
 
