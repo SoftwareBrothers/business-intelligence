@@ -5,7 +5,7 @@ class SQSTrigger {
     this.params = {
       projects, client, from, to,
     }
-    this.sqs = new AWS.SQS({ apiVersion: '2006-03-01' })
+    this.sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
   }
 
   async send() {
@@ -24,5 +24,5 @@ class SQSTrigger {
 module.exports = SQSTrigger
 
 // require('dotenv').config()
-// const RU = require('./src/report-uploader')
-// let ru = new RU({from: 1, to: 2, projectId: 'SJ', client: 'shopjam'})
+// const ST = require('./src/report/sqs-trigger')
+// let ru = new ST({from: 1, to: 2, projectId: 'SJ', client: 'shopjam'}).send()
