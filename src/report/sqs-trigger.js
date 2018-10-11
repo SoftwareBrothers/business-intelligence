@@ -5,7 +5,10 @@ class SQSTrigger {
     this.params = {
       projects, client, from, to,
     }
-    this.sqs = new AWS.SQS({ apiVersion: '2012-11-05' })
+    this.sqs = new AWS.SQS({
+      apiVersion: '2012-11-05',
+      region: process.env.AWS_DEFAULT_REGION,
+    })
   }
 
   async send() {
@@ -17,7 +20,7 @@ class SQSTrigger {
   }
 
   key() {
-    return `${this.client}/${this.project}_${this.from}-${this.to}.html`
+    return `${this.params.client}/${this.params.project}_${this.params.from}-${this.params.to}.html`
   }
 }
 
