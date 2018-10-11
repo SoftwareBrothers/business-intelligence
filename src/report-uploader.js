@@ -17,6 +17,7 @@ class ReportUploader {
       Key: this.key(),
       Body: this.html,
       ContentType: 'text/html; charset=utf-8',
+      CacheControl: 'no-cache',
     }).promise()
     return this.key()
   }

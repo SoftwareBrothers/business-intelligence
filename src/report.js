@@ -169,6 +169,9 @@ class Raport {
     const missingIssueKeys = Object.keys(issuesFromWorklogs).filter((wiKey) => {
       return !this.allSprintsIssues[wiKey]
     })
+    if (missingIssueKeys.length === 0) {
+      return
+    }
     const issues = await this.jira.search({ jql: `issueKey in (${missingIssueKeys.join(',')})` })
     this.addIssues({ issues: issues.map(issueMapper) })
   }

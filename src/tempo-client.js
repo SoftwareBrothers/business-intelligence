@@ -31,7 +31,7 @@ class Tempo {
   }
 
   async plans({ username, from, to }) {
-    const response = await this.client.get(`plans/user/${username}`, {
+    const response = await this.client.get(`plans/user/${encodeURI(username)}`, {
       params: { from, to },
     })
     return response.data.results
