@@ -1,0 +1,31 @@
+mixin sprintsBox(sprints, reportedPeriod)
+  section.section-header
+    .container
+      .row
+        .col.s12
+          h5 Sprints
+      .row
+        .col.s12
+          section.sprints-box
+            .title-wrapper
+              .bg-wrapper
+                h6 #{moment(reportedPeriod.startDate).format('DD.MM.YYYY')} - #{moment(reportedPeriod.finishDate).format('DD.MM.YYYY')}
+          .sprints-wrapper
+            each sprint, i in sprints
+              .sprint(
+                style="width: " + 100/sprints.length + '%'
+                class=sprint.state
+                class={
+                  'after-start': i === (sprints.length-1) && moment(sprint.startDate).diff(moment(reportedPeriod.startDate), 'days') > 0,
+                  'before-end': i === 0 && moment(sprint.endDate).diff(moment(reportedPeriod.finishDate), 'days') < 0
+                }
+              )
+                p.head
+                  = sprint.name
+                  span.sub #{moment(sprint.startDate).format('DD.MM.YYYY') } - #{moment(sprint.endDate).format('DD.MM.YYYY') }
+                p.time
+                  span.badge= sprint.state
+            if(moment(sprints[sprints.length-1].startDate).diff(moment(reportedPeriod.startDate), 'days') > 0)
+              .sprint.ghost
+                p.head
+                p.time

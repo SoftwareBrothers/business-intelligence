@@ -1,0 +1,8 @@
+mixin holiday(holiday)
+  .col.s6.team-member
+    img.circle.responsive-img(src=holiday.member.avatarUrl)
+    div
+      h5= holiday.member.displayName
+      p
+        span.badge.spacer
+          | #{holiday.dates.values[0].from} to #{holiday.dates.values[0].to}

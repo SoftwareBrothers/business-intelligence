@@ -8,6 +8,7 @@ module.exports = {
     ],
     "rules": {
         'semi': [2, 'never'],
-        'no-param-reassign': 0
+        'no-param-reassign': 0,
+        'no-use-before-define': 0
     }
 };

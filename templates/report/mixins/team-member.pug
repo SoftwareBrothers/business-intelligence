@@ -1,0 +1,18 @@
+mixin teamMember(member, worklogsParser, reportedPeriod)
+  .col.s4.team-member
+    img.circle.responsive-img(src=member.avatarUrl || member.avatarUrls['48x48'])
+    div
+      h5= member.displayName
+      if worklogsParser
+        - worklogDeveloper = worklogsParser.forDeveloper(member, reportedPeriod)
+        if worklogDeveloper
+          if worklogDeveloper.timeSpentSeconds > 0
+            p
+              span.badge.spacer Worked time
+            p
+              span.right= duration(worklogDeveloper.timeSpentSeconds)
+              | Total: 
+          if worklogDeveloper.overtimeTimeSpentSeconds > 0
+            p
+              span.right= duration(worklogDeveloper.overtimeTimeSpentSeconds)
+              | inc. Overtime: 

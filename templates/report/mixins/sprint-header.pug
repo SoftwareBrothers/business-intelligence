@@ -1,0 +1,53 @@
+mixin sprintHeader(sprint, summary, moment, project, jiraHost)
+  header
+    .container
+      .row
+        .col.s7
+          h4
+            = sprint.name
+            span.badge(class=sprint.state)
+              =sprint.state
+        .col.s5
+          .timestamps
+            p.label-box
+              label Start: 
+              | #{moment(sprint.startDate).format('DD.MM.YYYY')}
+            p.label-box
+              if sprint.completeDate
+                label Completed: 
+                | #{moment(sprint.completeDate).format('DD.MM.YYYY')}
+              else if sprint.endDate
+                label Planned finish: 
+                | #{moment(sprint.endDate).format('DD.MM.YYYY')}
+      if sprint.goal
+        .row
+          .col.s12
+            p=sprint.goal
+      .row
+        .col.s12
+          p.label-box
+            label Spent time/Estimation: 
+            | #{duration(summary.reduce((m, s) => m = m + s.timeSpentSeconds, 0))}/#{duration(summary.reduce((m, s) => m = m + s.originalEstimateSeconds, 0))}
+          p.label-box
+            label Remaining: 
+            = duration(summary.reduce((m, s) => m = m + s.remainingEstimateSeconds, 0))
+      .tabs-wrapper.row
+        ul.issue-tabs.col.s12
+          each val in summary
+            li.tab
+              a(href="#" + val.status.toLowerCase().replace(' ', '-') + sprint.id)
+                label=val.status
+                span=val.issues.length
+
+  .container
+    each val in summary
+      .formatted-list(id=val.status.toLowerCase().replace(' ', '-') + sprint.id)
+        .row.header
+          .col.s1.center-left Issue
+          .col.s4 Summary
+          .col.s2.right-align Assignee
+          .col.s2.right-align Time spent/Estimation
+          .col.s2.right-align Time needed to finish
+        each issue in val.issues
+          +issueInSprint(issue, project.worklogsParser, project.usersStore, jiraHost)
+

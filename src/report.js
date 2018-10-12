@@ -13,6 +13,7 @@ const CLIENTS_ROLE = 10100
 const HOLIDAY_ISSUE = 'INT-1'
 const ISSUES_MAP = {
   Open: 'Open',
+  'To Do': 'Open',
   'In Progress': 'In Progress',
   'Code Review': 'In Progress',
   Testing: 'Testing',
@@ -22,9 +23,11 @@ const ISSUES_MAP = {
   'for staging': 'Completed',
   Tested: 'Completed',
   Backlog: 'Open',
+  Done: 'Completed',
+  'Blocked/Brief': 'Open',
 }
 
-const ISSUES_ORDER = ['Open', 'In Progress', 'Testing', 'Completed', 'Released']
+const ISSUES_ORDER = ['Released', 'Completed', 'Testing', 'In Progress', 'Open']
 
 class Raport {
   constructor({ projectIds, fromDate, toDate }) {

@@ -1,0 +1,16 @@
+mixin issueInWorklog(issueWrap, issue, worklogsParser, usersStore, jiraHost)
+  .row.summary-row
+    .col.s1.center-left.issue-key
+      a(href=jiraHost + '/browse/' + issueWrap.key target="_blank")= issueWrap.key
+    .col.s4
+      if issue
+        = issue.summary
+        br
+        - status = issueStatuses[issue.status.name] || issue.status.name
+        span.badge(class=status.toLowerCase().replace(' ', '-'))= status
+    .col.s4.right-align
+      if issue
+        | #{duration(issue.timetracking.timeSpentSeconds)}/#{duration(issue.timetracking.originalEstimateSeconds)}
+    .col.s2.right-align=duration(issueWorklogs.timeSpentSeconds)
+    .col.s1.center-align.buttons
+      != images.angleUp

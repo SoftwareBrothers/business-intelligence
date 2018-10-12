@@ -23,3 +23,23 @@ factory.define('worklog', Object, {
     values: [],
   },
 })
+
+factory.extend('worklog', 'remoteWorklog', {
+  attributes: {
+    self: 'https://api.tempo.io/2/worklogs/84181/work-attribute-values',
+    values: [{
+      key: '_Remote_',
+      value: true,
+    }],
+  },
+})
+
+factory.extend('worklog', 'overtimeWorklog', {
+  attributes: {
+    self: 'https://api.tempo.io/2/worklogs/84181/work-attribute-values',
+    values: [{
+      key: '_Overtime_',
+      value: true,
+    }],
+  },
+})

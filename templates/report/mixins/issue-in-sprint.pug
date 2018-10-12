@@ -1,0 +1,23 @@
+mixin issueInSprint(issue, worklogsParser, usersStore, jiraHost)
+  .row
+    .col.s1.center-left.issue-key
+      a(href=jiraHost + '/browse/' + issue.key target="_blank")= issue.key
+    .col.s4= issue.summary
+    .col.s2.right-align
+      - issueWorklogs = worklogsParser.forIssue(issue.key)
+      if issueWorklogs
+        each developer in issueWorklogs.developers
+          - user = usersStore.forWorklogAuthor(developer)
+          if user
+            img.circle.tooltipped(
+              data-position='top'
+              data-tooltip=[user.displayName, duration(developer.billableSeconds)].join(': ')
+              src=user.avatarUrl || user.avatarUrls['24x24']
+              title=duration(developer.billableSeconds)
+              )
+          else 
+            = developer.username
+      else if issue.assignee
+        img.circle(src=issue.assignee.avatarUrls['24x24'])
+    .col.s2.right-align #{duration(issue.timetracking.timeSpentSeconds)}/#{duration(issue.timetracking.originalEstimateSeconds)}
+    .col.s2.right-align= duration(issue.timetracking.remainingEstimateSeconds)
