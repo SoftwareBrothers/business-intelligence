@@ -8,6 +8,7 @@ const fs = require('fs')
 const { promisify } = require('util')
 const Report = require('../src/report')
 const ReportUploader = require('../src/report/uploader')
+const Invoicer = require('../src/report/invoicer')
 
 const DURATION_FORMAT = 'h[h] m[m]'
 
@@ -58,6 +59,16 @@ if (!process.env.LAMBDA_TASK_ROOT) {
       })
       ru.upload().then(f => {
         console.log('filename', f)
+      })
+    } else if (process.env.INVOICE) {
+      const invoicer = new Invoicer({
+        project: process.env.PROJECTS,
+        from: process.env.FROM,
+        to: process.env.TO,
+        invoice: process.env.INVOICE,
+      })
+      invoicer.run().then(f => {
+        console.log('invoice set for:', invoicer.worklogs.length, 'worklogs')
       })
     } else {
       console.log(report)

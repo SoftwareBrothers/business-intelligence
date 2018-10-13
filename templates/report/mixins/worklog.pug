@@ -1,13 +1,20 @@
 mixin worklog(worklog, user)
   .row
     .col.s1
+      - invoice = worklog.attributes.values.find(v => v.key == '_Invoice_' && v.value)
+      if (invoice)
+        span.badge.completed.tooltipped(
+          data-position='top'
+          data-tooltip=invoice.value
+          ) Invoiced
     .col.s2.center-left.valign-wrapper
       if user
         img.circle.responsive-img(src=user.avatarUrl || user.avatarUrls['24x24']) 
         span= user.displayName
       else
         = worklog.author.displayName
-    .col.s4= worklog.description
+    .col.s4
+      = worklog.description
     .col.s2.right-align= moment(worklog.startDate).format('DD.MM.YYYY')
     .col.s2.right-align
       if (worklog.attributes.values.find(v => v.key == '_Overtime_' && v.value))

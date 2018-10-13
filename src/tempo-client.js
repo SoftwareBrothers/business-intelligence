@@ -20,11 +20,6 @@ class Tempo {
     return response.data.results.map(m => m.member)
   }
 
-  async accounts() {
-    const response = await this.client.get('accounts')
-    return response.data.results
-  }
-
   async accountLinks() {
     const response = await this.client.get('account-links')
     return response.data.results
@@ -51,6 +46,11 @@ class Tempo {
       }))
     }
     return worklogs
+  }
+
+  async updateWorklog(worklogId, params) {
+    const response = await this.client.put(`worklogs/${worklogId}`, params)
+    return response.data
   }
 
   async projectWorklogs({ projectKey, from, to, limit = 100, offset = 0 }) {

@@ -28,7 +28,7 @@ html
             .row
               .input-field.col.s12
                 input.autocomplete(type="text" id="projects")
-                label(for="autocomplete-input") Project
+                label(for="projects") Project
             .row
               .input-field.col.s6
                 input.datepicker(type="text" id="dateFrom")
@@ -36,6 +36,10 @@ html
               .input-field.col.s6
                 input.datepicker(type="text" id="dateTo")
                 label To
+            .row.invoice-wrapper
+              .input-field.col.s12
+                input(type="text" id="invoice")
+                label(for="invoice") Invoice number
             .row
               .col.s12
                 button.btn.waves-effect.waves-light(type="submit")
@@ -75,12 +79,19 @@ html
 
           var projects = $.trim($('#projects').val().split('(')[1].split(')')[0]);
           var client = $.trim($('#projects').val().split('(')[0])
+          var invoice = $.trim($('#invoice').val())
 
           $('#progress').animate({opacity: 1});
           $('form#generator button').addClass('disabled');
 
+          var url = ['?client=', client, '&to=', $('#dateTo').val(), '&from=', $('#dateFrom').val(), '&projects=', projects]
+          if(invoice && invoice != ''){
+            url.push('&invoice=', invoice)
+          }
+          url = url.join('')
+
           $.ajax({
-              url: ['?client=', client, '&to=', $('#dateTo').val(), '&from=', $('#dateFrom').val(), '&projects=', projects].join(''),
+              url: url,
               complete: function(xhr, status){
                 console.log(xhr, status)
                 var url = rootReportUrl + xhr.responseText;
@@ -88,6 +99,7 @@ html
                 $('#filenameWrapper').show().find('span').text(url);
                 $('#filenameWrapper').find('a').attr('href', url);
                 $('form#generator button').removeClass('disabled');
+                $('invoice-wrapper').show()
               }
             })
           return false;
