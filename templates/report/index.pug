@@ -31,7 +31,11 @@ html
               = project.name
               span  report
           col-s10
-            span.right generated at #{moment().format('DD.MM.YYYY HH:mm')}
+            span.right
+              | generated at #{moment().format('DD.MM.YYYY HH:mm')}
+              if invoice
+                br
+                | for invoice: #{invoice}
       main
         if project.board.sprints.length > 0
           +sprintsBox(project.board.sprints, reportedPeriod)

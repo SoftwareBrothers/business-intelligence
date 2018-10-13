@@ -6,6 +6,7 @@ const reportGenerator = require('./bin/report-generator')
 const ReportForm = require('./src/report-form')
 const ReportUploader = require('./src/report/uploader')
 const SQSTrigger = require('./src/report/sqs-trigger')
+const Invoicer = require('./src/report/invoicer')
 
 exports.bankRunner = async () => {
   const files = await bankRunner()
@@ -43,6 +44,16 @@ exports.reportGenerator = async (event) => {
     const params = JSON.parse(message.body)
     const report = await reportGenerator(params)
 
+    if (params.invoice && params.invoice !== '') {
+      const invoicer = new Invoicer({
+        project: params.projects,
+        to: params.to,
+        from: params.from,
+        invoice: params.invoice,
+      })
+      await invoicer.run()
+    }
+
     const uploader = new ReportUploader({
       client: params.client,
       project: params.projects,
@@ -59,6 +70,7 @@ exports.reportGenerator = async (event) => {
       projects: event.params.querystring.projects,
       to: event.params.querystring.to,
       from: event.params.querystring.from,
+      invoice: event.params.querystring.invoice,
     })
     await sqsTrigger.send()
     return ReportUploader.key({

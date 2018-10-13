@@ -3,7 +3,7 @@ mixin worklog(worklog, user)
     .col.s1
       - invoice = worklog.attributes.values.find(v => v.key == '_Invoice_' && v.value)
       if (invoice)
-        span.badge.completed.tooltipped(
+        span.badge.invoice.tooltipped(
           data-position='top'
           data-tooltip=invoice.value
           ) Invoiced

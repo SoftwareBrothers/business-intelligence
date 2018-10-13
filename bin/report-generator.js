@@ -12,7 +12,7 @@ const Invoicer = require('../src/report/invoicer')
 
 const DURATION_FORMAT = 'h[h] m[m]'
 
-async function run({ projects, from, to }) {
+async function run({ projects, from, to, invoice }) {
   const projectIds = projects.split(',')
   const fromDate = moment(from)
   const toDate = moment(to)
@@ -33,6 +33,7 @@ async function run({ projects, from, to }) {
       trim: 'both',
     })
   }
+  data.invoice = invoice
   data.pluralize = pluralize
   data.fonts = fs.readFileSync('assets/styles/fonts.css', 'utf-8')
   data.images = {
@@ -48,6 +49,7 @@ if (!process.env.LAMBDA_TASK_ROOT) {
     projects: process.env.PROJECTS,
     from: process.env.FROM,
     to: process.env.TO,
+    invoice: process.env.INVOICE,
   }).then((report) => {
     if (process.env.STORE === 'true') {
       const ru = new ReportUploader({
@@ -68,7 +70,7 @@ if (!process.env.LAMBDA_TASK_ROOT) {
         invoice: process.env.INVOICE,
       })
       invoicer.run().then(f => {
-        console.log('invoice set for:', invoicer.worklogs.length, 'worklogs')
+        console.log(report)
       })
     } else {
       console.log(report)
