@@ -23,7 +23,9 @@ class ReportUploader {
   }
 
   key() {
-    return `${this.client}/${this.project}_${this.from}-${this.to}.html`
+    const clientURI = this.client.toLowerCase().replace(' ', '-')
+    const projectURI = this.project.toLowerCase().replace(' ', '-')
+    return `${clientURI}/${projectURI}_${this.from}-${this.to}.html`
   }
 }
 
