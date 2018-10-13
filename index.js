@@ -63,7 +63,7 @@ exports.reportGenerator = async (event) => {
     await sqsTrigger.send()
     return ReportUploader.key({
       client: event.params.querystring.client,
-      projects: event.params.querystring.projects,
+      project: event.params.querystring.projects,
       to: event.params.querystring.to,
       from: event.params.querystring.from,
     })
