@@ -2,37 +2,6 @@ const moment = require('moment')
 const WorklogParser = require('../../src/report/worklogs-parser')
 
 describe('WorklogParser', function () {
-  describe('#mapWorklogIssue', function () {
-    beforeEach(async function () {
-      this.service = new WorklogParser()
-      this.issueKey = 'PRO-123'
-      this.worklog = await factory.build('worklog', {
-        issue: { key: this.issueKey },
-      })
-    })
-
-    context('adding worklog to empty object', function () {
-      beforeEach(function () {
-        this.service.mapWorklogIssue(this.worklog)
-      })
-
-      it('creates new key with worklog in an array inside', function () {
-        expect(this.service.worklogIssues[this.issueKey].worklogs.length).to.equal(1)
-      })
-    })
-
-    context('adding two worklogs for the same issue', function () {
-      beforeEach(function () {
-        this.service.mapWorklogIssue(this.worklog)
-        this.service.mapWorklogIssue(this.worklog)
-      })
-
-      it('creates only one key with worklogs in an array inside', function () {
-        expect(Object.keys(this.service.worklogIssues).length).to.equal(1)
-        expect(this.service.worklogIssues[this.issueKey].worklogs.length).to.equal(2)
-      })
-    })
-  })
   context('2 worklogs for the same issue, 2 in the past, 2 today', function () {
     beforeEach(async function () {
       this.username = 'wojtek.k'
@@ -95,7 +64,7 @@ describe('WorklogParser', function () {
       describe('with reported period just for today', function () {
         beforeEach(function () {
           this.service = new WorklogParser({ worklogs: this.worklogs })
-          this.ret = this.service.forDeveloper(this.username, {
+          this.ret = this.service.forDeveloper({ username: this.username }, {
             startDate: moment().subtract(1, 'day').startOf('day'),
             finishDate: moment().add(1, 'day'),
           })
