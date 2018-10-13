@@ -7,6 +7,7 @@ const sass = require('node-sass')
 const fs = require('fs')
 const { promisify } = require('util')
 const Report = require('../src/report')
+
 const DURATION_FORMAT = 'h[h] m[m]'
 
 async function run({ projects, from, to }) {
@@ -14,13 +15,8 @@ async function run({ projects, from, to }) {
   const fromDate = moment(from)
   const toDate = moment(to)
   let data
-  if (true) {
-    const report = new Report({ projectIds, fromDate, toDate })
-    data = await report.build()
-    // fs.writeFileSync('report.json', JSON.stringify(data))
-  } else {
-    data = JSON.parse(fs.readFileSync('report.json'))
-  }
+  const report = new Report({ projectIds, fromDate, toDate })
+  data = await report.build()
   const style = await promisify(sass.render)({
     file: 'assets/styles/index.sass',
     includePaths: ['assets/styles'],

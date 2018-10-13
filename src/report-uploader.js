@@ -8,7 +8,7 @@ class ReportUploader {
     this.from = from
     this.to = to
     this.html = html
-    this.s3 = new AWS.S3({apiVersion: '2006-03-01'})
+    this.s3 = new AWS.S3({ apiVersion: '2006-03-01' })
   }
 
   async upload() {
@@ -30,7 +30,3 @@ class ReportUploader {
 }
 
 module.exports = ReportUploader
-
-// require('dotenv').config()
-// const RU = require('./src/report-uploader')
-// let ru = new RU({from: 1, to: 2, projectId: 'SJ', client: 'shopjam'})
