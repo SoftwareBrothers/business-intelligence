@@ -4,7 +4,7 @@ const bankRunner = require('./bin/bank-runner')
 const incomeSynchroniser = require('./bin/income-synchroniser')
 const reportGenerator = require('./bin/report-generator')
 const ReportForm = require('./src/report-form')
-const ReportUploader = require('./src/report-uploader')
+const ReportUploader = require('./src/report/uploader')
 const SQSTrigger = require('./src/report/sqs-trigger')
 
 exports.bankRunner = async () => {
@@ -60,7 +60,13 @@ exports.reportGenerator = async (event) => {
       to: event.params.querystring.to,
       from: event.params.querystring.from,
     })
-    return sqsTrigger.send()
+    await sqsTrigger.send()
+    return ReportUploader.key({
+      client: event.params.querystring.client,
+      projects: event.params.querystring.projects,
+      to: event.params.querystring.to,
+      from: event.params.querystring.from,
+    })
   }
   const form = new ReportForm()
   return form.render()

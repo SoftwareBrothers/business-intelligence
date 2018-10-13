@@ -12,20 +12,11 @@ class SQSTrigger {
   }
 
   async send() {
-    await this.sqs.sendMessage({
+    return this.sqs.sendMessage({
       MessageBody: JSON.stringify(this.params),
       QueueUrl: process.env.AWS_QUEUE_URL,
     }).promise()
-    return this.key()
-  }
-
-  key() {
-    return `${this.params.client}/${this.params.projects}_${this.params.from}-${this.params.to}.html`
   }
 }
 
 module.exports = SQSTrigger
-
-// require('dotenv').config()
-// const ST = require('./src/report/sqs-trigger')
-// let ru = new ST({from: 1, to: 2, projectId: 'SJ', client: 'shopjam'}).send()

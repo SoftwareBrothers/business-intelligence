@@ -7,6 +7,7 @@ const sass = require('node-sass')
 const fs = require('fs')
 const { promisify } = require('util')
 const Report = require('../src/report')
+const ReportUploader = require('../src/report/uploader')
 
 const DURATION_FORMAT = 'h[h] m[m]'
 
@@ -48,8 +49,7 @@ if (!process.env.LAMBDA_TASK_ROOT) {
     to: process.env.TO,
   }).then((report) => {
     if (process.env.STORE === 'true') {
-      const ReportUploader = require('../src/report-uploader')
-      let ru = new ReportUploader({
+      const ru = new ReportUploader({
         client: process.env.CLIENT,
         project: process.env.PROJECTS,
         from: process.env.FROM,
