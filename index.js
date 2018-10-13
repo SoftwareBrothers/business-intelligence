@@ -42,8 +42,6 @@ exports.reportGenerator = async (event) => {
   if (event.Records) {
     const message = event.Records[0]
     const params = JSON.parse(message.body)
-    const report = await reportGenerator(params)
-
     if (params.invoice && params.invoice !== '') {
       const invoicer = new Invoicer({
         project: params.projects,
@@ -53,6 +51,7 @@ exports.reportGenerator = async (event) => {
       })
       await invoicer.run()
     }
+    const report = await reportGenerator(params)
 
     const uploader = new ReportUploader({
       client: params.client,

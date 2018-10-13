@@ -1,9 +1,9 @@
 const AWS = require('aws-sdk')
 
 class SQSTrigger {
-  constructor({ client, projects, from, to }) {
+  constructor({ client, projects, from, to, invoice }) {
     this.params = {
-      projects, client, from, to,
+      projects, client, from, to, invoice,
     }
     this.sqs = new AWS.SQS({
       apiVersion: '2012-11-05',
