@@ -29,7 +29,13 @@ class Uploader {
       ContentType: 'text/html; charset=utf-8',
       CacheControl: 'no-cache',
     }).promise()
-    return this.key()
+
+    return Uploader.key({
+      client: this.client,
+      project: this.project,
+      from: this.from,
+      to: this.to,
+    })
   }
 }
 
