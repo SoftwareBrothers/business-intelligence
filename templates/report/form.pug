@@ -21,7 +21,7 @@ html
           != images.logo
           h2 
             span Report generator
-    .wrap.valign-wrapper(style='height: 400px')
+    .wrap
       .container
         .row
           form.col.s6.offset-s3(id="generator")
@@ -100,6 +100,7 @@ html
                 $('#filenameWrapper').find('a').attr('href', url);
                 $('form#generator button').removeClass('disabled');
                 $('.invoice-wrapper').show()
+                $('form#generator button').text('GENERATE INVOICE REPORT')
               }
             })
           return false;
