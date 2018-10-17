@@ -43,3 +43,13 @@ factory.extend('worklog', 'overtimeWorklog', {
     }],
   },
 })
+
+factory.extend('worklog', 'invoicedWorklog', {
+  attributes: {
+    self: 'https://api.tempo.io/2/worklogs/84181/work-attribute-values',
+    values: [{
+      key: '_Invoice_',
+      value: 'Invoice no',
+    }],
+  },
+})

@@ -13,7 +13,7 @@ describe('WorklogParser', function () {
         author: { username: this.username },
         timeSpentSeconds: this.timeSpentSeconds,
         billableSeconds: this.billableSeconds,
-        startDate: moment().format('YYYY-MM-DD'),
+        startDate: moment().startOf('day').format('YYYY-MM-DD'),
       })
       this.worklogs = this.worklogs.concat(await factory.buildMany('worklog', 2, {
         issue: { key: this.issueKey },
@@ -48,7 +48,7 @@ describe('WorklogParser', function () {
         beforeEach(function () {
           this.service = new WorklogParser({ worklogs: this.worklogs })
           this.ret = this.service.forIssue(this.issueKey, {
-            startDate: moment().subtract(1, 'day').startOf('day'),
+            startDate: moment().startOf('day'),
             finishDate: moment().add(1, 'day'),
           })
         })

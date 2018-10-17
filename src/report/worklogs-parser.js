@@ -3,6 +3,11 @@ const moment = require('moment')
 const REMOTE_ATTRIBUTE = '_Remote_'
 const OVERTIME_ATTRIBUTE = '_Overtime_'
 
+const filterReportedPeriod = (worklogs, reportedPeriod) => {
+  return moment(worklogs.startDate).isSameOrAfter(reportedPeriod.startDate)
+         && moment(worklogs.startDate).isSameOrBefore(reportedPeriod.finishDate)
+}
+
 const mapItem = (mem, worklog, key) => {
   if (mem[key]) {
     mem[key].worklogs.push(worklog)
@@ -40,9 +45,7 @@ class WorklogsParser {
   issues(reportedPeriod) {
     let { worklogs } = this
     if (reportedPeriod) {
-      worklogs = worklogs.filter((w) => {
-        return moment(w.startDate).isBetween(reportedPeriod.startDate, reportedPeriod.finishDate)
-      })
+      worklogs = worklogs.filter(w => filterReportedPeriod(w, reportedPeriod))
     }
     return worklogs.reduce((m, worklog) => mapItem(m, worklog, worklog.issue.key), {})
   }
@@ -53,9 +56,7 @@ class WorklogsParser {
     }
     let { worklogs } = this.worklogIssues[issueKey]
     if (reportedPeriod) {
-      worklogs = worklogs.filter((w) => {
-        return moment(w.startDate).isBetween(reportedPeriod.startDate, reportedPeriod.finishDate)
-      })
+      worklogs = worklogs.filter(w => filterReportedPeriod(w, reportedPeriod))
     }
 
     const data = worklogs.reduce((m, w) => {
@@ -94,9 +95,7 @@ class WorklogsParser {
   stats(reportedPeriod) {
     let worklogs = this.worklogs
     if (reportedPeriod) {
-      worklogs = worklogs.filter((w) => {
-        return moment(w.startDate).isBetween(reportedPeriod.startDate, reportedPeriod.finishDate)
-      })
+      worklogs = worklogs.filter(w => filterReportedPeriod(w, reportedPeriod))
     }
     return worklogStats(worklogs)
   }
@@ -116,9 +115,7 @@ class WorklogsParser {
     }
     let { worklogs } = this.worklogDevelopers[username]
     if (reportedPeriod) {
-      worklogs = worklogs.filter((w) => {
-        return moment(w.startDate).isBetween(reportedPeriod.startDate, reportedPeriod.finishDate)
-      })
+      worklogs = worklogs.filter(w => filterReportedPeriod(w, reportedPeriod))
     }
 
     const data = worklogStats(worklogs)

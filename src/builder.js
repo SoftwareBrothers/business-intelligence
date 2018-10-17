@@ -5,6 +5,8 @@ const Tempo = require('./tempo-client')
 const Jira = require('./jira-client')
 const Sheets = require('./sheets-client')
 
+const Worklog = require('./models/worklog')
+
 
 const inHour = 3600
 const offset = 4
@@ -28,9 +30,22 @@ class Builder {
   async init() {
     await this.fetchPrices()
     await this.fetchMembers()
-
     await Promise.all(this.members.map(async (member, i) => {
-      const hoursAvailable = await this.countWorkingHours(member)
+      if (!member.username) {
+        this.countedHours[i] = {
+          hoursAvailable: 0,
+          planned: {},
+          worked: {},
+        }
+        return
+      }
+      let hoursAvailable
+      try {
+        hoursAvailable = await this.countWorkingHours(member)
+      } catch (error) {
+        console.log('error fetching hours for', member.username)
+        return null
+      }
       const hours = {
         hoursAvailable,
         planned: await this.countPlannedHours(member),
@@ -101,6 +116,19 @@ class Builder {
       column: 'J',
       data: this.countedHours.map(m => JSON.stringify(m.worked.projects)),
     })
+
+    await this.updateColumn({
+      column: 'K',
+      data: this.countedHours.map(m => m.worked.hoursInvoiced),
+    })
+    await this.updateColumn({
+      column: 'L',
+      data: this.countedHours.map(m => m.worked.invoicedAmount),
+    })
+    await this.updateColumn({
+      column: 'M',
+      data: this.countedHours.map(m => JSON.stringify(m.worked.invoicedProjects)),
+    })
   }
 
   async fetchPrices() {
@@ -141,25 +169,35 @@ class Builder {
     })
 
     const hours = worklogs.reduce((m, worklog) => {
-      const h = worklog.billableSeconds / inHour
-      // changes 'ST-172' to 'ST'
-      const issueKey = worklog.issue.key
-      const projectKey = issueKey.split('-')[0]
+      const wk = new Worklog(worklog)
+      const projectKey = wk.projectKey()
       if (!this.prices[projectKey]) {
         throw new Error(`${projectKey} is not present in the spreadsheed: ${projectSheet}!`)
       }
       if (this.prices[projectKey].price.value > 0) {
-        const ammountFormula = `${m.billableAmount} + ${this.prices[projectKey].priceCell}*${h}`
+        const ammountFormula = `${m.billableAmount} + ${this.prices[projectKey].priceCell}*${wk.billableHour()}`
         m.billableAmount = ammountFormula
-        m.hoursBillable += h
+        m.hoursBillable += wk.billableHour()
+        if (wk.wasInvoiced()) {
+          m.invoicedProjects[projectKey] = (m.invoicedProjects[projectKey] || 0) + wk.billableHour()
+          m.hoursInvoiced += wk.billableHour()
+          const invoicedFormula = `${m.billableAmount} + ${this.prices[projectKey].priceCell}*${wk.billableHour()}`
+          m.invoicedAmount = invoicedFormula
+        }
       }
 
-      m.projects[projectKey] = (m.projects[projectKey] || 0) + h
-      m.hoursTotal += h
+      m.projects[projectKey] = (m.projects[projectKey] || 0) + wk.billableHour()
+      m.hoursTotal += wk.billableHour()
 
       return m
     }, {
-      hoursTotal: 0, billableAmount: '= 0', hoursBillable: 0, projects: {},
+      hoursTotal: 0,
+      billableAmount: '= 0',
+      hoursBillable: 0,
+      projects: {},
+      hoursInvoiced: 0,
+      invoicedAmount: '= 0',
+      invoicedProjects: {},
     })
     return hours
   }
@@ -176,6 +214,9 @@ class Builder {
 
       if (plan.planItem.type === 'PROJECT') {
         const projectKey = plan.planItem.self.split('/').pop()
+        if (!this.prices[projectKey]) {
+          throw new Error(`${projectKey} is not present in the spreadsheed: ${projectSheet}!`)
+        }
         if (this.prices[projectKey].price.value > 0) {
           const ammountFormula = `${m.billableAmount} + ${this.prices[projectKey].priceCell}*${h}`
           m.billableAmount = ammountFormula
