@@ -94,7 +94,7 @@ const run = async () => {
       responses.push(resp)
       
     }
-    sheet.update({ range: `B${offset}:AB${offset + bathSize}`, values: responses })
+    sheet.update({ range: `B${offset}:AP${offset + bathSize}`, values: responses })
     console.log(`processed: ${offset}:${offset+bathSize}`)
   }
 }
