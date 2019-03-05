@@ -69,7 +69,7 @@ const run = async () => {
               return links.length > 0 ? links[0] : 0
             }).find(a => a)
 
-            if (linkPage) {
+            if (linkPage && $(linkPage).attr('href')) {
               let href = $(linkPage).attr('href')
               if (!href.match('http')) {
                 let url = new URL(uri)
