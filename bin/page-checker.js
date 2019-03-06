@@ -44,6 +44,7 @@ const run = async () => {
       if (!uri.match('http')) {
         uri = `http://${uri}`
       }
+      console.log('parsing: ' + uri + ' ...')
       let resp = []
       let response
       try {
