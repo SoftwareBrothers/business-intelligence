@@ -19,6 +19,8 @@ const SHEET = process.env.PAGES_SHEET || '1wnRkTGj2GPb14YFLe3Uh0HW7FaZc7hvMGJXNY
 const Sheets = require('../src/sheets-client')
 
 const timeout = process.env.TIMEOUT || 5000
+const startRow = (process.env.START_ROW || parseInt(process.env.START_ROW)) || 3
+const rowMax = (process.env.ROW_MAX || parseInt(process.env.ROW_MAX)) || 26348
 
 const run = async () => {
   const sheet = new Sheets({ docId: SHEET })
@@ -34,7 +36,7 @@ const run = async () => {
     return memo
   }, [])
 
-  for (let offset = process.env.START_ROW || 3; offset < process.env.ROW_MAX || 26348; offset += bathSize) {
+  for (let offset = startRow || 3; offset < rowMax; offset += bathSize) {
     const responses = []
     const pages = await sheet.values({ range: `A${offset}:A${offset + bathSize}` })
     for (let index = 0; index < pages.length; index++) {
