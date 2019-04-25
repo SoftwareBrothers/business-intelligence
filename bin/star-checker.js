@@ -10,6 +10,7 @@ const run = async () => {
   const languages = ['TypeScript', 'JavaScript', 'Dockerfile', 'Vue', 'CoffeeScript']
   const repos = ret.data.filter(a => languages.includes(a.language))
   console.log(repos.reduce((m, d) => m + d.stargazers_count, 0))
+
   const popular = repos.map(r => ({
     name: r.name,
     language: r.language,
