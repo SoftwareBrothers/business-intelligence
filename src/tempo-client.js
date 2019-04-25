@@ -3,10 +3,10 @@ const axios = require('axios')
 const DEVELOPMENT_TEAM = 6
 
 class Tempo {
-  constructor({ token, version = 2 }) {
+  constructor({ token, version = 3 }) {
     this.version = version
     this.client = new axios.create({
-      baseURL: `https://api.tempo.io/${this.version}`,
+      baseURL: `https://api.tempo.io/core/${this.version}`,
       headers: { Authorization: `Bearer ${token}` },
     })
   }
@@ -25,8 +25,8 @@ class Tempo {
     return response.data.results
   }
 
-  async plans({ username, from, to }) {
-    const response = await this.client.get(`plans/user/${encodeURI(username)}`, {
+  async plans({ accountId, from, to }) {
+    const response = await this.client.get(`plans/user/${encodeURI(accountId)}`, {
       params: { from, to },
     })
     return response.data.results

@@ -90,14 +90,12 @@ class Raport {
     if (boards[0].type !== 'kanban') {
       sprints = await this.getSprints({ boardId: boards[0].id })
     }
-
     const worklogsParser = await this.buildWorklogsParser({ projectKey })
     const usersStore = await this.buildUsersStore({
       projectKey,
       project,
       worklogDeveloperKeys: worklogsParser.developers(this.reportedPeriod).map(u => u.username),
     })
-
     const absenses = await this.getAbsenses({ developers: usersStore.projectDevelopers })
 
     await this.fetchMissingIssues({
@@ -126,7 +124,7 @@ class Raport {
   async getAbsenses({ developers }) {
     const absenses = await Promise.all(developers.map(async (member) => {
       const plans = await this.tempo.plans({
-        username: member.name,
+        accountId: member.accountId || member.actorUser.accountId,
         from: this.reportedPeriod.startDate.format('YYYY-MM-DD'),
         to: this.reportedPeriod.finishDate.clone().add(6, 'months').format('YYYY-MM-DD'),
       })
