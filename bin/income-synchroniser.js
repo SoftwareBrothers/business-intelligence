@@ -2,7 +2,7 @@ require('dotenv').config()
 
 const Builder = require('../src/builder')
 
-const run = async function ({ month }) {
+const run = async ({ month }) => {
   const builder = new Builder({ month })
   await builder.init()
 
@@ -11,7 +11,7 @@ const run = async function ({ month }) {
 }
 
 if (!process.env.LAMBDA_TASK_ROOT) {
-  run({month: process.env.MONTH}).then((out) => { console.log('parsedFiles', out) })
+  run({ month: process.env.MONTH }).then((out) => { console.log('parsedFiles', out) })
 }
 
 module.exports = run

@@ -30,8 +30,10 @@ class Builder {
   async init() {
     await this.fetchPrices()
     await this.fetchMembers()
-    await Promise.all(this.members.map(async (member, i) => {
-      if (!member.username) {
+    for (let i = 0; i < this.members.length; i += 1) {
+    // for (let i = 0; i < 2; i += 1) {
+      const member = this.members[i]
+      if (!member.displayName) {
         this.countedHours[i] = {
           hoursAvailable: 0,
           planned: {},
@@ -43,8 +45,7 @@ class Builder {
       try {
         hoursAvailable = await this.countWorkingHours(member)
       } catch (error) {
-        console.log('error fetching hours for', member.username)
-        return null
+        console.log('error fetching hours for', member.displayName)
       }
       const hours = {
         hoursAvailable,
@@ -54,7 +55,7 @@ class Builder {
 
       this.countedHours[i] = hours
       console.log(member.displayName)
-    }))
+    }
   }
 
   async updateColumn({ column = 'A', data }) {
@@ -95,7 +96,7 @@ class Builder {
 
     await this.updateColumn({
       column: 'F',
-      data: this.countedHours.map(m => JSON.stringify(m.planned.projects)),
+      data: this.countedHours.map(m => this.humanizeProjects(m.planned.projects)),
     })
 
     await this.updateColumn({
@@ -114,7 +115,7 @@ class Builder {
     })
     await this.updateColumn({
       column: 'J',
-      data: this.countedHours.map(m => JSON.stringify(m.worked.projects)),
+      data: this.countedHours.map(m => this.humanizeProjects(m.worked.projects)),
     })
 
     await this.updateColumn({
@@ -138,6 +139,7 @@ class Builder {
       m[e[0]] = {
         priceCell: `${projectSheet}!C${offset + i}`,
         price: currency(e[2]),
+        name: e[1],
       }
       return m
     }, {})
@@ -149,7 +151,7 @@ class Builder {
 
   async countWorkingHours(member) {
     const schedules = await this.tempo.schedule({
-      username: member.username,
+      accountId: member.accountId,
       from: moment(this.month).format('YYYY-MM-DD'),
       to: moment(this.month).endOf('month').format('YYYY-MM-DD'),
     })
@@ -163,7 +165,7 @@ class Builder {
 
   async countWorkedHours(member) {
     const worklogs = await this.tempo.userWorklogs({
-      username: member.username,
+      accountId: member.accountId,
       from: moment(this.month).format('YYYY-MM-DD'),
       to: moment(this.month).endOf('month').format('YYYY-MM-DD'),
     })
@@ -172,7 +174,7 @@ class Builder {
       const wk = new Worklog(worklog)
       const projectKey = wk.projectKey()
       if (!this.prices[projectKey]) {
-        throw new Error(`${projectKey} is not present in the spreadsheed: ${projectSheet}!`)
+        throw new Error(`${projectKey} is not present in the spreadsheet: ${projectSheet}!`)
       }
       if (this.prices[projectKey].price.value > 0) {
         const ammountFormula = `${m.billableAmount} + ${this.prices[projectKey].priceCell}*${wk.billableHour()}`
@@ -204,7 +206,7 @@ class Builder {
 
   async countPlannedHours(member) {
     const plans = await this.tempo.plans({
-      username: member.username,
+      accountId: member.accountId,
       from: moment(this.month).format('YYYY-MM-DD'),
       to: moment(this.month).endOf('month').format('YYYY-MM-DD'),
     })
@@ -215,9 +217,9 @@ class Builder {
       if (plan.planItem.type === 'PROJECT') {
         const projectKey = plan.planItem.self.split('/').pop()
         if (!this.prices[projectKey]) {
-          throw new Error(`${projectKey} is not present in the spreadsheed: ${projectSheet}!`)
+          throw new Error(`${projectKey} is not present in the spreadsheet: ${projectSheet}!`)
         }
-        if (this.prices[projectKey].price.value > 0) {
+        if (this.prices[projectKey].price.value > 0 && !(plan.description || '').match(/\[free\]/i)) {
           const ammountFormula = `${m.billableAmount} + ${this.prices[projectKey].priceCell}*${h}`
           m.billableAmount = ammountFormula
           m.hoursBillable += h
@@ -233,6 +235,14 @@ class Builder {
       hoursTotal: 0, billableAmount: '= 0', hoursBillable: 0, projects: {},
     })
     return hours
+  }
+
+  humanizeProjects(projects) {
+    return Object.entries(projects).map(([k, v]) => {
+      const hours = v.toFixed(2)
+      const projectName = this.prices[k].name
+      return `${projectName}: ${hours}h`
+    }).join('\n')
   }
 }
 

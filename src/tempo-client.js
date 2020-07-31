@@ -5,7 +5,7 @@ const DEVELOPMENT_TEAM = 6
 class Tempo {
   constructor({ token, version = 3 }) {
     this.version = version
-    this.client = new axios.create({
+    this.client = axios.create({
       baseURL: `https://api.tempo.io/core/${this.version}`,
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -32,8 +32,10 @@ class Tempo {
     return response.data.results
   }
 
-  async userWorklogs({ username, from, to, limit = 1000, offset = 0 }) {
-    const response = await this.client.get(`worklogs/user/${username}`, {
+  async userWorklogs({
+    accountId, from, to, limit = 1000, offset = 0,
+  }) {
+    const response = await this.client.get(`worklogs/user/${accountId}`, {
       params: {
         from, to, limit, offset,
       },
@@ -41,7 +43,10 @@ class Tempo {
     let worklogs = response.data.results
     if (response.data.metadata.next) {
       worklogs = worklogs.concat(this.userWorklogs({
-        username, from, to, limit,
+        accountId,
+        from,
+        to,
+        limit,
         offset: offset + limit,
       }))
     }
@@ -53,7 +58,9 @@ class Tempo {
     return response.data
   }
 
-  async projectWorklogs({ projectKey, from, to, limit = 100, offset = 0 }) {
+  async projectWorklogs({
+    projectKey, from, to, limit = 100, offset = 0,
+  }) {
     const response = await this.client.get(`worklogs/project/${projectKey}`, {
       params: {
         from, to, limit, offset,
@@ -63,7 +70,10 @@ class Tempo {
     let worklogs = response.data.results
     if (response.data.metadata.next) {
       worklogs = worklogs.concat(await this.projectWorklogs({
-        projectKey, from, to, limit,
+        projectKey,
+        from,
+        to,
+        limit,
         offset: offset + limit,
       }))
     }
@@ -75,8 +85,9 @@ class Tempo {
     return response.data.results
   }
 
-  async schedule({ username, from, to }) {
-    const response = await this.client.get(`/user-schedule/${username}`, {
+  async schedule({ accountId, from, to }) {
+    console.log(`/user-schedule/${accountId}`)
+    const response = await this.client.get(`/user-schedule/${accountId}`, {
       params: { from, to },
     })
     return response.data.results
