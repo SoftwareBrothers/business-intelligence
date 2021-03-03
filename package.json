@@ -22,7 +22,7 @@
     "moment-duration-format": "^2.2.2",
     "node-sass": "^4.9.3",
     "pluralize": "^7.0.0",
-    "pug": "^2.0.3",
+    "pug": "^3.0.1",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "require.all": "^2.0.4"
